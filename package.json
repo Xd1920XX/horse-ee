@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@react-three/drei": "^10.7.9",
-    "@react-three/fiber": "^9.8.2",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
     "firebase": "^13.1.0",
     "jspdf": "^2.5.2",
     "konva": "^9.3.16",
@@ -18,7 +18,7 @@
     "react-dom": "^18.3.1",
     "react-konva": "^18.2.10",
     "react-router-dom": "^7.18.4",
-    "three": "^0.186.1",
+    "three": "^0.168.0",
     "use-image": "^1.1.1",
     "zustand": "^4.5.5"
   },
