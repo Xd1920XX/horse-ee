@@ -638,7 +638,13 @@ export const useStore = create<State>((set, get) => ({
   deleteFromLibrary: (id) => {
     const next = get().library.filter((c) => c.id !== id);
     localStorage.setItem('horse-course-library', JSON.stringify(next));
+    const activeNowStale = get().course.id === id;
     set({ library: next });
+    if (activeNowStale) {
+      // Current working course was deleted — switch to a fresh blank course so
+      // the editor doesn't keep writing into a tombstoned id.
+      set({ course: defaultCourse(), selectedIds: [], history: [], future: [] });
+    }
   },
 
   newCourse: (name) => {

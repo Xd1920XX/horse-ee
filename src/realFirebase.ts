@@ -109,23 +109,41 @@ export function onSnapshot<T>(collectionPath: string, cb: (docs: { id: string; d
 let currentUserCache: MockUser | null = null;
 const authListeners = new Set<(user: MockUser | null) => void>();
 
+// Track in-flight writes initiated by signUp/signInWithGoogle so onAuthStateChanged
+// doesn't race against them and overwrite the role.
+const inFlightUserWrites = new Set<string>();
+
 async function toMockUser(u: FbUser): Promise<MockUser> {
-  // Load / create users/{uid} doc holding roles.
+  // If signUp/signInWithGoogle is mid-write for this uid, don't touch Firestore —
+  // return a provisional MockUser; the write flow will update currentUserCache.
+  if (inFlightUserWrites.has(u.uid)) {
+    return {
+      uid: u.uid,
+      email: u.email ?? '',
+      displayName: u.displayName ?? (u.email?.split('@')[0] ?? 'kasutaja'),
+      provider: u.providerData.some((p) => p.providerId === 'google.com') ? 'google' : 'password',
+      roles: { organizer: false, admin: false },
+    };
+  }
   const existing = await getDoc<MockUser>(`users/${u.uid}`);
+  if (existing) {
+    return {
+      uid: u.uid,
+      email: existing.email ?? u.email ?? '',
+      displayName: existing.displayName ?? u.displayName ?? 'kasutaja',
+      provider: existing.provider ?? 'password',
+      roles: existing.roles ?? { organizer: false, admin: false },
+    };
+  }
+  // No doc yet; create with safe defaults.
   const user: MockUser = {
     uid: u.uid,
     email: u.email ?? '',
     displayName: u.displayName ?? (u.email?.split('@')[0] ?? 'kasutaja'),
     provider: u.providerData.some((p) => p.providerId === 'google.com') ? 'google' : 'password',
-    roles: existing?.roles ?? { organizer: false, admin: false },
+    roles: { organizer: false, admin: false },
   };
-  if (!existing) {
-    // first login — create user doc
-    await setDoc(`users/${u.uid}`, { ...user, createdAt: Date.now() });
-  } else {
-    // keep roles from Firestore (source of truth)
-    user.roles = existing.roles;
-  }
+  await setDoc(`users/${u.uid}`, { ...user, createdAt: Date.now() });
   return user;
 }
 
@@ -156,17 +174,25 @@ export function onAuthChanged(cb: (user: MockUser | null) => void): () => void {
 
 export async function signUp(email: string, password: string, role: 'trainer' | 'rider'): Promise<MockUser> {
   const cred = await createUserWithEmailAndPassword(requireAuth(), email, password);
-  const u: MockUser = {
-    uid: cred.user.uid,
-    email,
-    displayName: email.split('@')[0],
-    provider: 'password',
-    roles: { organizer: role === 'trainer', admin: false },
-  };
-  await setDoc(`users/${cred.user.uid}`, { ...u, createdAt: Date.now() });
-  currentUserCache = u;
-  authListeners.forEach((cb) => cb(u));
-  return u;
+  const uid = cred.user.uid;
+  // Guard against the onAuthStateChanged listener creating a default user doc
+  // while we're writing the role-tagged doc.
+  inFlightUserWrites.add(uid);
+  try {
+    const u: MockUser = {
+      uid,
+      email,
+      displayName: email.split('@')[0],
+      provider: 'password',
+      roles: { organizer: role === 'trainer', admin: false },
+    };
+    await setDoc(`users/${uid}`, { ...u, createdAt: Date.now() });
+    currentUserCache = u;
+    authListeners.forEach((cb) => cb(u));
+    return u;
+  } finally {
+    inFlightUserWrites.delete(uid);
+  }
 }
 
 export async function signInWithEmail(email: string, password: string): Promise<MockUser> {

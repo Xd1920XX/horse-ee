@@ -9,18 +9,24 @@ import { useAuth } from '../../auth/AuthProvider';
 type Props = { compId: string };
 
 // Parse strings like "63.42", "1:03.42", "1:03", "63" to seconds.
+// Returns null if invalid or out of plausible range (0..3600s = 1 hour).
 function parseTimeInput(input: string): number | null {
   const s = input.trim().replace(',', '.');
   if (!s) return null;
+  let total: number;
   if (s.includes(':')) {
     const [m, rest] = s.split(':');
     const mNum = Number(m);
     const sNum = Number(rest);
     if (isNaN(mNum) || isNaN(sNum)) return null;
-    return mNum * 60 + sNum;
+    total = mNum * 60 + sNum;
+  } else {
+    const n = Number(s);
+    if (isNaN(n)) return null;
+    total = n;
   }
-  const n = Number(s);
-  return isNaN(n) ? null : n;
+  if (total < 0 || total > 3600) return null;
+  return total;
 }
 
 export function ScoreEntry({ compId }: Props) {

@@ -21,6 +21,10 @@ export function Protocol({ compId }: Props) {
   useEffect(() => watchStarts(compId, setStarts), [compId]);
   useEffect(() => { listRegistrations(compId).then(setRegs); }, [compId]);
 
+  const cl = classes.find((c) => c.id === selectedClass);
+  const classStarts = starts.filter((s) => s.classId === selectedClass);
+  const regMap = new Map(regs.map((r) => [r.id, r]));
+
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pdfErr, setPdfErr] = useState('');
   const onExportPdf = async () => {
@@ -38,10 +42,6 @@ export function Protocol({ compId }: Props) {
       setPdfBusy(false);
     }
   };
-
-  const cl = classes.find((c) => c.id === selectedClass);
-  const classStarts = starts.filter((s) => s.classId === selectedClass);
-  const regMap = new Map(regs.map((r) => [r.id, r]));
 
   const rows = cl ? sortedProtocol(buildProtocol(classStarts, regMap, cl.timeLimitSeconds)) : [];
 
