@@ -68,7 +68,9 @@ service cloud.firestore {
       // Only organizers can create.
       allow create: if hasRole('organizer')
         && request.resource.data.organizerUid == request.auth.uid;
-      allow update, delete: if isOrganizerOf(cid) || isAdmin();
+      allow update: if isOrganizerOf(cid) || isAdmin();
+      // Delete only allowed on drafts — published events must stay in archive.
+      allow delete: if (isOrganizerOf(cid) && resource.data.status == 'draft') || isAdmin();
 
       // ---- Classes (sub) ----
       match /classes/{clid} {
