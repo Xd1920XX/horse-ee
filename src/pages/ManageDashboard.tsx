@@ -5,6 +5,7 @@ import { watchCompetitions } from '../domain/competitions';
 import { SiteNav } from '../components/SiteNav';
 import { useAuth } from '../auth/AuthProvider';
 import { grantRole } from '../firebase';
+import { seedDemoCompetitions } from '../seedDemo';
 
 export function ManageDashboard() {
   const { user } = useAuth();
@@ -20,6 +21,24 @@ export function ManageDashboard() {
       </div>
     );
   }
+
+  const [seeding, setSeeding] = useState(false);
+  const [seedMsg, setSeedMsg] = useState('');
+
+  const seedDemo = async () => {
+    if (!user) return;
+    if (!confirm('Loo 10 demo võistlust koos ratturite ja tulemustega? Võib võtta 30-60 sekundit.')) return;
+    setSeeding(true);
+    setSeedMsg('');
+    try {
+      const r = await seedDemoCompetitions(user.uid, user.displayName);
+      setSeedMsg(`✓ Loodud ${r.competitions} võistlust, ${r.registrations} registreeringut, ${r.starts} starti.`);
+    } catch (e: any) {
+      setSeedMsg('Viga: ' + (e?.message ?? e));
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   const becomeOrganizer = async () => {
     setUpgrading(true);
@@ -58,6 +77,20 @@ export function ManageDashboard() {
         )}
         {mine.length === 0 && user.roles.organizer && (
           <p className="muted">Pole veel ühtegi võistlust loonud.</p>
+        )}
+
+        {user.roles.organizer && (
+          <div className="form-card" style={{ marginTop: 16, maxWidth: 'none' }}>
+            <h3>Demo andmed</h3>
+            <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>
+              Täida platvorm 10 näidisvõistlusega — ajalooga, 5-30 ratturit klassis,
+              juhuslikud tulemused. Hea platvormi tutvustamiseks.
+            </p>
+            <button onClick={seedDemo} disabled={seeding}>
+              {seeding ? 'Loon demo…' : '🎲 Lisa demo võistlused'}
+            </button>
+            {seedMsg && <p style={{ fontSize: 13, color: '#fbbf24', marginTop: 10 }}>{seedMsg}</p>}
+          </div>
         )}
         <div className="comp-grid">
           {mine.map((c) => (
