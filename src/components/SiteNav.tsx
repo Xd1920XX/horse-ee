@@ -11,8 +11,9 @@ export function SiteNav() {
       <Link to="/" className="brand">🐎 Horse-ee</Link>
       <nav>
         <Link to="/competitions" className={is('/competitions') ? 'active' : ''}>Võistlused</Link>
-        <Link to="/designer" className={is('/designer') ? 'active' : ''}>Rajadisainer</Link>
-        {user && <Link to="/my/entries" className={is('/my') ? 'active' : ''}>Minu</Link>}
+        <Link to="/designer" className={loc.pathname === '/designer' ? 'active' : ''}>Rajadisainer</Link>
+        {user && <Link to="/my/courses" className={is('/my/courses') ? 'active' : ''}>Rajad</Link>}
+        {user && <Link to="/my/entries" className={is('/my/entries') ? 'active' : ''}>Minu reg</Link>}
         {user && <Link to="/manage" className={is('/manage') ? 'active' : ''}>Halda</Link>}
       </nav>
       <div className="site-nav-right">

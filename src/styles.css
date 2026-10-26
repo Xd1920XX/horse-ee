@@ -917,3 +917,230 @@ tr.top3 td { font-weight: 600; }
   font-size: 13px;
 }
 .button-link:hover { background: #475569; color: #fbbf24; }
+
+/* ===== Polish v2 ===== */
+
+/* Smooth, modern typography */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hero refinements */
+.hero h1 {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+
+/* Feature card hover polish */
+.feature-card {
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+.feature-card:hover::before { transform: scaleX(1); }
+
+/* Comp card refinements */
+.comp-card {
+  position: relative;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.comp-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px rgba(251, 191, 36, 0.3);
+}
+
+/* Protocol table polish */
+.class-table {
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0b1220;
+}
+
+.class-table thead tr {
+  background: #0f172a;
+}
+
+.class-table tbody tr:hover {
+  background: #1e293b;
+}
+
+tr.top3 {
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.12) 0%, transparent 70%);
+}
+tr.top3:hover {
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.05) 70%);
+}
+
+/* Button polish */
+.btn, button {
+  transition: all 0.1s;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* SiteNav mobile responsive */
+@media (max-width: 640px) {
+  .site-nav {
+    padding: 10px 14px;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+  .site-nav .brand { font-size: 16px; }
+  .site-nav nav {
+    gap: 4px;
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .site-nav nav a {
+    padding: 4px 8px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .site-nav-right { gap: 6px; }
+  .user-chip { font-size: 11px; padding: 3px 6px; }
+
+  .container { padding: 20px 14px 60px; }
+  h1 { font-size: 26px; }
+  h2 { font-size: 20px; }
+
+  .comp-grid { grid-template-columns: 1fr; }
+
+  .class-table {
+    font-size: 12px;
+  }
+  .class-table th, .class-table td {
+    padding: 8px 6px;
+  }
+}
+
+/* Score cards polish */
+.score-card {
+  transition: all 0.15s;
+  position: relative;
+}
+
+.score-card:hover {
+  transform: translateY(-2px);
+  border-color: #475569;
+}
+
+.score-card.done::after {
+  content: '✓';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #22c55e;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Form inputs */
+input, select, textarea {
+  transition: border-color 0.1s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
+}
+
+/* Status pills modern look */
+.status-pill {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+  padding: 4px 10px;
+}
+
+/* Role picker refinements */
+.role-option {
+  transition: all 0.15s;
+}
+.role-option:hover:not(.active) {
+  border-color: #64748b;
+  background: #1e293b;
+}
+.role-option.active {
+  box-shadow: 0 0 0 1px #fbbf24, 0 4px 16px -4px rgba(251, 191, 36, 0.3);
+}
+
+/* Course cards */
+.course-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.15s;
+}
+
+.course-card:hover {
+  border-color: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px rgba(251, 191, 36, 0.3);
+}
+
+.course-card-body {
+  cursor: pointer;
+  flex: 1;
+}
+
+.course-card-body h3 {
+  margin: 0 0 6px;
+  color: #f8fafc;
+  font-size: 16px;
+}
+
+.course-card-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  border-top: 1px solid #334155;
+  padding-top: 10px;
+}
+
+.course-card-actions button {
+  width: 36px;
+  height: 32px;
+  padding: 0;
+  font-size: 14px;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.course-card-actions button.danger {
+  background: #450a0a;
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+.course-card-actions button:hover { filter: brightness(1.15); }

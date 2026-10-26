@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { SiteNav } from '../components/SiteNav';
 import { Competition, CompetitionStatus } from '../domain/types';
 import { getCompetition, updateCompetition, deleteCompetition } from '../domain/competitions';
+import { listClasses, deleteClass } from '../domain/classes';
+import { listRegistrations, deleteRegistration } from '../domain/registrations';
+import { listStarts, deleteStart } from '../domain/starts';
 import { ClassList } from '../components/competition/ClassList';
 import { RegistrationList } from '../components/competition/RegistrationList';
 import { StartList } from '../components/competition/StartList';
@@ -22,6 +25,7 @@ const STATUSES: { v: CompetitionStatus; label: string }[] = [
 
 export function CompetitionEditor() {
   const { id } = useParams<{ id: string }>();
+  const nav = useNavigate();
   const [comp, setComp] = useState<Competition | null>(null);
   const [tab, setTab] = useState<Tab>('info');
 
@@ -39,8 +43,19 @@ export function CompetitionEditor() {
 
   const remove = async () => {
     if (!confirm(`Kustuta "${comp.name}"? Kõik klassid ja registreeringud lähevad kaasa.`)) return;
+    // Firestore doesn't recursively delete subcollections — do it ourselves.
+    const [classes, regs, starts] = await Promise.all([
+      listClasses(comp.id),
+      listRegistrations(comp.id),
+      listStarts(comp.id),
+    ]);
+    await Promise.all([
+      ...classes.map((c) => deleteClass(comp.id, c.id)),
+      ...regs.map((r) => deleteRegistration(comp.id, r.id)),
+      ...starts.map((s) => deleteStart(comp.id, s.id)),
+    ]);
     await deleteCompetition(comp.id);
-    window.location.href = '/manage';
+    nav('/manage');
   };
 
   return (

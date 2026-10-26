@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthProvider';
 import { ProtectedRoute } from './auth/ProtectedRoute';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { seedIfEmpty } from './seed';
 import { BACKEND_MODE } from './firebase';
 import { HomePage } from './pages/HomePage';
@@ -19,6 +20,7 @@ import { CompetitionEditor } from './pages/CompetitionEditor';
 import { LiveScoringPage } from './pages/LiveScoringPage';
 import { MyHorsesPage } from './pages/MyHorsesPage';
 import { MyEntriesPage } from './pages/MyEntriesPage';
+import { MyCoursesPage } from './pages/MyCoursesPage';
 import { ProfilePage } from './pages/ProfilePage';
 
 export default function App() {
@@ -36,9 +38,10 @@ export default function App() {
   if (!seeded) return <div className="loading-splash">Laadin…</div>;
 
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
+    <ErrorBoundary>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -63,15 +66,17 @@ export default function App() {
           <Route path="/my/horses" element={<ProtectedRoute><MyHorsesPage /></ProtectedRoute>} />
           <Route path="/my/entries" element={<ProtectedRoute><MyEntriesPage /></ProtectedRoute>} />
           <Route path="/my/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/my/courses" element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
 
           <Route path="/manage" element={<ProtectedRoute><ManageDashboard /></ProtectedRoute>} />
           <Route path="/manage/competitions/new" element={<ProtectedRoute requireOrganizer><NewCompetitionPage /></ProtectedRoute>} />
           <Route path="/manage/competitions/:id" element={<ProtectedRoute requireOrganizer><CompetitionEditor /></ProtectedRoute>} />
           <Route path="/manage/competitions/:id/live" element={<ProtectedRoute requireOrganizer><LiveScoringPage /></ProtectedRoute>} />
 
-          <Route path="*" element={<HomePage />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            <Route path="*" element={<HomePage />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
