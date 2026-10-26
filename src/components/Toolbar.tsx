@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useStore } from '../store';
 
 type Props = {
@@ -59,6 +60,7 @@ export function Toolbar({ onExportPdf, onExportJson, onImportJson, onSharePng, o
       <button onClick={onExportJson}>Salvesta JSON</button>
       {onSaveCloud && <button onClick={onSaveCloud} title="Salvesta pilve">☁ Pilve</button>}
       <button onClick={onSharePng} title="Jaga PNG">📤</button>
+      <Link to="/designer/3d" className="button-link" title="3D eelvaade">🧊 3D</Link>
       <button className="primary" onClick={onExportPdf}>PDF</button>
       <button className="danger" onClick={() => confirm('Tühjenda kõik takistused?') && clearObstacles()}>×</button>
       <button className="danger" onClick={() => confirm('Alusta otsast?') && reset()}>Uus</button>

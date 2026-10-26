@@ -12,6 +12,7 @@ import { CompetitionsPublicPage } from './pages/CompetitionsPublicPage';
 import { CompetitionDetailPage } from './pages/CompetitionDetailPage';
 import { RegisterForCompetitionPage } from './pages/RegisterForCompetitionPage';
 import { DesignerPage } from './pages/DesignerPage';
+import { Designer3DPage } from './pages/Designer3DPage';
 import { ManageDashboard } from './pages/ManageDashboard';
 import { NewCompetitionPage } from './pages/NewCompetitionPage';
 import { CompetitionEditor } from './pages/CompetitionEditor';
@@ -45,6 +46,8 @@ export default function App() {
 
           <Route path="/designer" element={<DesignerPage />} />
           <Route path="/designer/:courseId" element={<DesignerPage />} />
+          <Route path="/designer/3d" element={<Designer3DPage />} />
+          <Route path="/designer/:courseId/3d" element={<Designer3DPage />} />
 
           <Route path="/competitions" element={<CompetitionsPublicPage />} />
           <Route path="/competitions/:id" element={<CompetitionDetailPage />} />

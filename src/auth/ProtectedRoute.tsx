@@ -13,14 +13,7 @@ export function ProtectedRoute({ children, requireOrganizer, requireAdmin }: Pro
   if (loading) return <div className="loading-splash">Laadin…</div>;
   if (!user) return <Navigate to="/login" replace />;
   if (requireOrganizer && !user.roles.organizer && !user.roles.admin) {
-    return (
-      <div className="page">
-        <main className="container">
-          <h1>Juurdepääs keelatud</h1>
-          <p className="muted">Sul pole korraldaja rolli. Küsi admini käest.</p>
-        </main>
-      </div>
-    );
+    return <Navigate to="/manage" replace />;
   }
   if (requireAdmin && !user.roles.admin) {
     return (
