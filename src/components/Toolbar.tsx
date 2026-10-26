@@ -5,11 +5,12 @@ type Props = {
   onExportJson: () => void;
   onImportJson: () => void;
   onSharePng: () => void;
+  onSaveCloud?: () => void;
 };
 
-export function Toolbar({ onExportPdf, onExportJson, onImportJson, onSharePng }: Props) {
+export function Toolbar({ onExportPdf, onExportJson, onImportJson, onSharePng, onSaveCloud }: Props) {
   const {
-    undo, redo, autoNumber, clearNumbers,
+    undo, redo, autoNumber, autoDetectCombinations, clearNumbers,
     toggleGrid, toggleDistances, togglePath, toggleFlags,
     reset, setSnap, mirrorHorizontal, mirrorVertical, rotateCourse,
     setTool, clearRuler, resetView, clearObstacles,
@@ -30,6 +31,7 @@ export function Toolbar({ onExportPdf, onExportJson, onImportJson, onSharePng }:
       <button onClick={redo} title="Redo (Ctrl+Y)">↷</button>
       <span className="divider" />
       <button onClick={autoNumber} title="Auto numereeri">Auto nr</button>
+      <button onClick={autoDetectCombinations} title="Tuvasta kombod (12m, sama suund)">Auto kombo</button>
       <button onClick={clearNumbers} title="Tühjenda numeratsioon">× nr</button>
       <span className="divider" />
       <button className={tool === 'ruler' ? 'primary' : ''} onClick={() => { setTool(tool === 'ruler' ? 'select' : 'ruler'); clearRuler(); }} title="Mõõdulint (M)">📏</button>
@@ -54,7 +56,8 @@ export function Toolbar({ onExportPdf, onExportJson, onImportJson, onSharePng }:
       <button onClick={() => rotateCourse(90)} title="Pööra 90°">↻90</button>
       <div className="spacer" />
       <button onClick={onImportJson}>Impordi</button>
-      <button onClick={onExportJson}>Salvesta</button>
+      <button onClick={onExportJson}>Salvesta JSON</button>
+      {onSaveCloud && <button onClick={onSaveCloud} title="Salvesta pilve">☁ Pilve</button>}
       <button onClick={onSharePng} title="Jaga PNG">📤</button>
       <button className="primary" onClick={onExportPdf}>PDF</button>
       <button className="danger" onClick={() => confirm('Tühjenda kõik takistused?') && clearObstacles()}>×</button>

@@ -1,0 +1,107 @@
+rules_version = '2';
+
+// Security rules per CLAUDE.md §8. Roles live in /users/{uid}.roles.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+
+    function hasRole(role) {
+      return isSignedIn() && userDoc(request.auth.uid).roles[role] == true;
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isOrganizerOf(compId) {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/competitions/$(compId)).data.organizerUid == request.auth.uid;
+    }
+
+    function isJudgeOf(compId) {
+      return isSignedIn()
+        && request.auth.uid in get(/databases/$(database)/documents/competitions/$(compId)).data.judgeUids;
+    }
+
+    // ---- Users ----
+    match /users/{uid} {
+      // Any signed-in user can read user profiles (for display names on protocol).
+      allow read: if isSignedIn();
+      // Only the owner can create their own user doc at sign-up.
+      allow create: if isSignedIn() && request.auth.uid == uid
+        && request.resource.data.roles.admin == false;
+      // Owner can update their displayName but NOT their roles.
+      allow update: if isSignedIn() && request.auth.uid == uid
+        && request.resource.data.roles == resource.data.roles;
+      // Admin can update roles.
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ---- Horses ----
+    match /horses/{horseId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if isSignedIn()
+        && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // ---- Courses (designer) ----
+    match /courses/{courseId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if isSignedIn()
+        && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // ---- Competitions ----
+    match /competitions/{cid} {
+      // Public can read non-draft competitions.
+      allow read: if resource.data.status != 'draft' || isOrganizerOf(cid) || isAdmin();
+      // Only organizers can create.
+      allow create: if hasRole('organizer')
+        && request.resource.data.organizerUid == request.auth.uid;
+      allow update, delete: if isOrganizerOf(cid) || isAdmin();
+
+      // ---- Classes (sub) ----
+      match /classes/{clid} {
+        allow read: if get(/databases/$(database)/documents/competitions/$(cid)).data.status != 'draft'
+          || isOrganizerOf(cid) || isAdmin();
+        allow write: if isOrganizerOf(cid) || isAdmin();
+      }
+
+      // ---- Registrations (sub) ----
+      match /registrations/{rid} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn()
+          && request.resource.data.riderUid == request.auth.uid
+          && get(/databases/$(database)/documents/competitions/$(cid)).data.status == 'open';
+        // Rider can withdraw themselves; organizer can set any status.
+        allow update: if isOrganizerOf(cid) || isAdmin()
+          || (isSignedIn() && resource.data.riderUid == request.auth.uid
+              && request.resource.data.status == 'withdrawn');
+        allow delete: if isOrganizerOf(cid) || isAdmin();
+      }
+
+      // ---- Starts (sub) ----
+      match /starts/{sid} {
+        // Public protocol access.
+        allow read: if true;
+        allow write: if isOrganizerOf(cid) || isJudgeOf(cid) || isAdmin();
+      }
+
+      // ---- Awards (sub) ----
+      match /awards/{classId} {
+        allow read: if true;
+        allow write: if isOrganizerOf(cid) || isAdmin();
+      }
+    }
+  }
+}

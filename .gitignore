@@ -45,6 +45,9 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 
+# Netlify
+.netlify/
+
 # Coverage
 coverage/
 *.lcov

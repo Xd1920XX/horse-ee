@@ -1,96 +1,72 @@
-import { useEffect, useRef } from 'react';
-import { ArenaCanvas, getStagePng } from './components/ArenaCanvas';
-import { Palette } from './components/Palette';
-import { Inspector } from './components/Inspector';
-import { Toolbar } from './components/Toolbar';
-import { MobileSheet } from './components/MobileSheet';
-import { useStore } from './store';
-import { useKeyboard } from './useKeyboard';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './auth/AuthProvider';
+import { ProtectedRoute } from './auth/ProtectedRoute';
+import { seedIfEmpty } from './seed';
+import { BACKEND_MODE } from './firebase';
+import { HomePage } from './pages/HomePage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { CompetitionsPublicPage } from './pages/CompetitionsPublicPage';
+import { CompetitionDetailPage } from './pages/CompetitionDetailPage';
+import { RegisterForCompetitionPage } from './pages/RegisterForCompetitionPage';
+import { DesignerPage } from './pages/DesignerPage';
+import { ManageDashboard } from './pages/ManageDashboard';
+import { NewCompetitionPage } from './pages/NewCompetitionPage';
+import { CompetitionEditor } from './pages/CompetitionEditor';
+import { LiveScoringPage } from './pages/LiveScoringPage';
+import { MyHorsesPage } from './pages/MyHorsesPage';
+import { MyEntriesPage } from './pages/MyEntriesPage';
 
 export default function App() {
-  useKeyboard();
-  const course = useStore((s) => s.course);
-  const loadJSON = useStore((s) => s.loadJSON);
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  // Persist to localStorage on every change
+  const [seeded, setSeeded] = useState(false);
   useEffect(() => {
-    try {
-      localStorage.setItem('horse-course', JSON.stringify(course));
-    } catch {}
-  }, [course]);
-
-  // Load from localStorage on first mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('horse-course');
-      if (saved) loadJSON(saved);
-    } catch {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Only auto-seed when running against the local mock backend. On real
+    // Firebase we never want to overwrite production data.
+    if (BACKEND_MODE === 'mock') {
+      seedIfEmpty().finally(() => setSeeded(true));
+    } else {
+      setSeeded(true);
+    }
   }, []);
 
-  const onExportJson = () => {
-    const blob = new Blob([JSON.stringify(course, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${course.name.replace(/\s+/g, '_')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const onImportJson = () => fileRef.current?.click();
-
-  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const text = await f.text();
-    if (!loadJSON(text)) alert('Vigane JSON');
-    e.target.value = '';
-  };
-
-  const onExportPdf = async () => {
-    const { exportPdf } = await import('./pdf');
-    exportPdf(course);
-  };
-
-  const onSharePng = async () => {
-    const dataUrl = getStagePng();
-    if (!dataUrl) {
-      alert('Ekraani ei õnnestunud jäädvustada');
-      return;
-    }
-    try {
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      const file = new File([blob], `${course.name}.png`, { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: course.name, text: `Rada: ${course.name}` });
-      } else {
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = `${course.name.replace(/\s+/g, '_')}.png`;
-        a.click();
-      }
-    } catch (err: any) {
-      if (err.name !== 'AbortError') alert('Jagamine ebaõnnestus: ' + err.message);
-    }
-  };
+  if (!seeded) return <div className="loading-splash">Laadin…</div>;
 
   return (
-    <div className="app">
-      <div className="topbar">
-        <Toolbar onExportPdf={onExportPdf} onExportJson={onExportJson} onImportJson={onImportJson} onSharePng={onSharePng} />
-      </div>
-      <div className="panel palette">
-        <Palette />
-      </div>
-      <ArenaCanvas />
-      <div className="panel inspector">
-        <Inspector />
-      </div>
-      <MobileSheet />
-      <input ref={fileRef} type="file" accept="application/json" style={{ display: 'none' }} onChange={onFile} />
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+          <Route path="/designer" element={<DesignerPage />} />
+          <Route path="/designer/:courseId" element={<DesignerPage />} />
+
+          <Route path="/competitions" element={<CompetitionsPublicPage />} />
+          <Route path="/competitions/:id" element={<CompetitionDetailPage />} />
+          <Route
+            path="/competitions/:id/register"
+            element={
+              <ProtectedRoute>
+                <RegisterForCompetitionPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/my/horses" element={<ProtectedRoute><MyHorsesPage /></ProtectedRoute>} />
+          <Route path="/my/entries" element={<ProtectedRoute><MyEntriesPage /></ProtectedRoute>} />
+
+          <Route path="/manage" element={<ProtectedRoute><ManageDashboard /></ProtectedRoute>} />
+          <Route path="/manage/competitions/new" element={<ProtectedRoute requireOrganizer><NewCompetitionPage /></ProtectedRoute>} />
+          <Route path="/manage/competitions/:id" element={<ProtectedRoute requireOrganizer><CompetitionEditor /></ProtectedRoute>} />
+          <Route path="/manage/competitions/:id/live" element={<ProtectedRoute requireOrganizer><LiveScoringPage /></ProtectedRoute>} />
+
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

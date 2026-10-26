@@ -69,6 +69,7 @@ type State = {
   rotateSelectedBy: (deg: number) => void;
   groupSelectedAsCombination: () => void;
   ungroupCombination: (comboId: string) => void;
+  autoDetectCombinations: () => void;
 
   // decorations
   addDecoration: (type: DecorationType, x: number, y: number) => void;
@@ -118,6 +119,14 @@ type State = {
   redo: () => void;
   reset: () => void;
   loadJSON: (json: string) => boolean;
+
+  // library (multiple saved courses)
+  library: Course[];
+  reloadLibrary: () => void;
+  saveToLibrary: (overrides?: Partial<Course>) => void;    // upsert current
+  switchToCourse: (id: string) => void;
+  deleteFromLibrary: (id: string) => void;
+  newCourse: (name?: string) => void;
 };
 
 const snap = (c: Course): HistorySnapshot => JSON.parse(JSON.stringify(c));
@@ -301,6 +310,74 @@ export const useStore = create<State>((set, get) => ({
         o.comboGroupId === comboId ? { ...o, comboGroupId: undefined, letter: undefined } : o
       ),
     }));
+  },
+
+  autoDetectCombinations: () => {
+    const COMBO_MAX_DIST = 12;          // ≤12m between elements = combination (FEI style)
+    const COMBO_ROT_TOLERANCE = 25;     // rotation diff in degrees — same direction of travel
+
+    commit(set, get, (c) => {
+      const taken = new Set<string>();
+      const groups: string[][] = [];
+      const list = c.obstacles.filter((o) => !o.comboGroupId); // only ungrouped candidates
+
+      for (const a of list) {
+        if (taken.has(a.id)) continue;
+        const group = [a];
+        taken.add(a.id);
+        // extend group greedily with closest remaining obstacle
+        let changed = true;
+        while (changed && group.length < 3) {
+          changed = false;
+          let bestId: string | null = null;
+          let bestD = Infinity;
+          for (const b of list) {
+            if (taken.has(b.id)) continue;
+            // measure distance from any member in group
+            const d = Math.min(...group.map((g) => Math.hypot(g.x - b.x, g.y - b.y)));
+            if (d > COMBO_MAX_DIST) continue;
+            // rotation within tolerance of group leader
+            const rotDelta = Math.abs(((b.rotation - group[0].rotation + 540) % 360) - 180);
+            // 180 = same direction, closer to 180 = better
+            if (Math.abs(180 - rotDelta) > COMBO_ROT_TOLERANCE) continue;
+            if (d < bestD) { bestD = d; bestId = b.id; }
+          }
+          if (bestId) {
+            const b = list.find((o) => o.id === bestId)!;
+            group.push(b);
+            taken.add(b.id);
+            changed = true;
+          }
+        }
+        if (group.length >= 2) groups.push(group.map((o) => o.id));
+      }
+
+      if (!groups.length) return c;
+
+      const letters = ['a', 'b', 'c'];
+      const idToCombo = new Map<string, { comboId: string; letter: string }>();
+      for (const g of groups) {
+        const comboId = uid();
+        // sort within group by position along the leader rotation direction
+        const sorted = g
+          .map((id) => c.obstacles.find((o) => o.id === id)!)
+          .sort((a, b) => {
+            const rad = (a.rotation * Math.PI) / 180;
+            const projA = a.x * Math.cos(rad) + a.y * Math.sin(rad);
+            const projB = b.x * Math.cos(rad) + b.y * Math.sin(rad);
+            return projA - projB;
+          });
+        sorted.forEach((o, i) => idToCombo.set(o.id, { comboId, letter: letters[i] }));
+      }
+
+      return {
+        ...c,
+        obstacles: c.obstacles.map((o) => {
+          const g = idToCombo.get(o.id);
+          return g ? { ...o, comboGroupId: g.comboId, letter: g.letter } : o;
+        }),
+      };
+    });
   },
 
   addDecoration: (type, x, y) => {
@@ -521,5 +598,52 @@ export const useStore = create<State>((set, get) => ({
     } catch {
       return false;
     }
+  },
+
+  library: (() => {
+    try {
+      const raw = localStorage.getItem('horse-course-library');
+      return raw ? (JSON.parse(raw) as Course[]) : [];
+    } catch {
+      return [];
+    }
+  })(),
+
+  reloadLibrary: () => {
+    try {
+      const raw = localStorage.getItem('horse-course-library');
+      set({ library: raw ? (JSON.parse(raw) as Course[]) : [] });
+    } catch {
+      set({ library: [] });
+    }
+  },
+
+  saveToLibrary: (overrides) => {
+    const cur = get().course;
+    const toSave: Course = { ...cur, ...overrides, updatedAt: Date.now() };
+    const lib = get().library;
+    const idx = lib.findIndex((c) => c.id === toSave.id);
+    const next = idx >= 0 ? lib.map((c, i) => (i === idx ? toSave : c)) : [...lib, toSave];
+    localStorage.setItem('horse-course-library', JSON.stringify(next));
+    set({ library: next, course: toSave });
+  },
+
+  switchToCourse: (id) => {
+    const lib = get().library;
+    const found = lib.find((c) => c.id === id);
+    if (!found) return;
+    set({ course: JSON.parse(JSON.stringify(found)), selectedIds: [], history: [], future: [] });
+  },
+
+  deleteFromLibrary: (id) => {
+    const next = get().library.filter((c) => c.id !== id);
+    localStorage.setItem('horse-course-library', JSON.stringify(next));
+    set({ library: next });
+  },
+
+  newCourse: (name) => {
+    const fresh = defaultCourse();
+    if (name) fresh.name = name;
+    set({ course: fresh, selectedIds: [], history: [], future: [] });
   },
 }));

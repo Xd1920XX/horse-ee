@@ -4,6 +4,7 @@ import { useStore } from '../store';
 import { placeAtStrides } from '../geometry';
 import { TemplateLibrary } from './TemplateLibrary';
 import { GeneratorPanel } from './GeneratorPanel';
+import { CourseLibrary } from './CourseLibrary';
 
 const SWATCH: Record<ObstacleType, string> = {
   vertical:    '🚧',
@@ -27,7 +28,7 @@ const DECO_SWATCH: Record<DecorationType, string> = {
 };
 
 export function Palette() {
-  const [tab, setTab] = useState<'obstacles' | 'decorations' | 'templates' | 'generator'>('obstacles');
+  const [tab, setTab] = useState<'obstacles' | 'decorations' | 'templates' | 'generator' | 'library'>('obstacles');
   const pendingObstacle = useStore((s) => s.pendingObstacleType);
   const pendingDecoration = useStore((s) => s.pendingDecorationType);
   const setPendingObstacle = useStore((s) => s.setPendingObstacle);
@@ -55,6 +56,7 @@ export function Palette() {
         <button className={tab === 'decorations' ? 'active' : ''} onClick={() => setTab('decorations')}>Dekoor</button>
         <button className={tab === 'templates' ? 'active' : ''} onClick={() => setTab('templates')}>Mallid</button>
         <button className={tab === 'generator' ? 'active' : ''} onClick={() => setTab('generator')}>Auto</button>
+        <button className={tab === 'library' ? 'active' : ''} onClick={() => setTab('library')}>Teek</button>
       </div>
 
       {tab === 'obstacles' && (
@@ -122,6 +124,7 @@ export function Palette() {
 
       {tab === 'templates' && <TemplateLibrary />}
       {tab === 'generator' && <GeneratorPanel />}
+      {tab === 'library' && <CourseLibrary />}
     </div>
   );
 }
