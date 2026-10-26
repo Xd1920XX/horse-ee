@@ -18,6 +18,7 @@ import { CompetitionEditor } from './pages/CompetitionEditor';
 import { LiveScoringPage } from './pages/LiveScoringPage';
 import { MyHorsesPage } from './pages/MyHorsesPage';
 import { MyEntriesPage } from './pages/MyEntriesPage';
+import { ProfilePage } from './pages/ProfilePage';
 
 export default function App() {
   const [seeded, setSeeded] = useState(false);
@@ -58,6 +59,7 @@ export default function App() {
 
           <Route path="/my/horses" element={<ProtectedRoute><MyHorsesPage /></ProtectedRoute>} />
           <Route path="/my/entries" element={<ProtectedRoute><MyEntriesPage /></ProtectedRoute>} />
+          <Route path="/my/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
           <Route path="/manage" element={<ProtectedRoute><ManageDashboard /></ProtectedRoute>} />
           <Route path="/manage/competitions/new" element={<ProtectedRoute requireOrganizer><NewCompetitionPage /></ProtectedRoute>} />

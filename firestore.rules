@@ -37,10 +37,10 @@ service cloud.firestore {
       // Only the owner can create their own user doc at sign-up.
       allow create: if isSignedIn() && request.auth.uid == uid
         && request.resource.data.roles.admin == false;
-      // Owner can update their displayName but NOT their roles.
+      // Owner can update their own doc. Organizer role self-toggleable; admin stays locked.
       allow update: if isSignedIn() && request.auth.uid == uid
-        && request.resource.data.roles == resource.data.roles;
-      // Admin can update roles.
+        && request.resource.data.roles.admin == resource.data.roles.admin;
+      // Admin can update anything, including admin role.
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }

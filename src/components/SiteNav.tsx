@@ -20,7 +20,7 @@ export function SiteNav() {
       <div className="site-nav-right">
         {user ? (
           <>
-            <span className="user-chip">{user.displayName}</span>
+            <Link to="/my/profile" className="user-chip" title="Minu profiil">{user.displayName}</Link>
             <button onClick={logout}>Logi välja</button>
           </>
         ) : (
