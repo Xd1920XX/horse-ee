@@ -5,10 +5,13 @@ body {
   background: #0f172a;
   color: #e2e8f0;
   overscroll-behavior: none;
+}
+/* Designer canvas needs no-select + no-touch-scroll. Content pages must scroll. */
+.app, .app * {
   -webkit-user-select: none;
   user-select: none;
-  touch-action: none;
 }
+.canvas-wrap { touch-action: none; }
 button {
   font-family: inherit;
   cursor: pointer;
@@ -2366,4 +2369,137 @@ tr.top3 td:first-child {
 @media (max-width: 640px) {
   .hero-stats { gap: var(--s-5); }
   .stat-num { font-size: 28px; }
+}
+
+/* ===== Mobile nav v2 (hamburger) ===== */
+
+.nav-burger {
+  display: none;
+  background: var(--bg-2);
+  color: var(--text-1);
+  border: 1px solid var(--border-2);
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-sm);
+  font-size: 20px;
+  padding: 0;
+}
+
+@media (max-width: 760px) {
+  .site-nav {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+  }
+  .site-nav .brand { flex: 1; font-size: 17px; }
+  .nav-burger { display: inline-flex; align-items: center; justify-content: center; }
+  .site-nav nav {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 2px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-1);
+    margin-top: 6px;
+    order: 10;
+  }
+  .site-nav nav.open { display: flex; }
+  .site-nav nav a {
+    padding: 12px 14px;
+    font-size: 15px;
+    border-radius: var(--r-sm);
+    width: 100%;
+  }
+  .site-nav-right {
+    order: 2;
+    flex-shrink: 0;
+  }
+  .user-chip-name {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ===== Mobile scrollable tables ===== */
+
+@media (max-width: 760px) {
+  .class-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .class-table th, .class-table td {
+    padding: 10px;
+  }
+
+  /* Row labels stack above inputs on mobile */
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    margin-bottom: var(--s-4);
+  }
+  .row label {
+    min-width: 0;
+    font-size: 12px;
+  }
+
+  /* Bigger touch targets */
+  button, .btn {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+
+  .btn-group button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Modal full-width on phones */
+  .modal-card { padding: var(--s-4); border-radius: var(--r-md); }
+
+  /* Hero padding tight */
+  .hero { padding: var(--s-5) var(--s-3) var(--s-5); }
+  .hero-stats { gap: var(--s-4); }
+  .stat-num { font-size: 26px; }
+  .stat-label { font-size: 10px; }
+
+  /* Features single column */
+  .features { grid-template-columns: 1fr; padding: var(--s-3) var(--s-3) var(--s-5); }
+  .feature-card { padding: var(--s-4); }
+  .feature-card h2 { font-size: 22px; }
+
+  /* Score cards single column */
+  .score-grid { grid-template-columns: 1fr; }
+  .score-faults-quick button { min-width: 44px; height: 44px; }
+
+  /* Editor tabs scroll */
+  .editor-tabs { padding: 3px; }
+  .editor-tabs button { padding: 10px 14px; font-size: 12px; }
+
+  /* Form card no horizontal overflow */
+  .form-card { max-width: 100%; }
+
+  /* Container snug padding */
+  .container { padding: var(--s-3) var(--s-3) var(--s-6); }
+  .page h1 { font-size: 24px; }
+  .page h2 { font-size: 18px; margin-top: var(--s-4); }
+
+  /* Course cards single col */
+  .comp-grid { grid-template-columns: 1fr; }
+  .course-card { padding: var(--s-4); }
+
+  /* Designer topbar wrap */
+  .topbar { flex-wrap: wrap; height: auto; padding: 6px; gap: 4px; }
+  .three-topbar { flex-wrap: wrap; }
+}
+
+/* Prevent iOS form zoom (keep font >= 16px) */
+@media (max-width: 760px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }

@@ -68,8 +68,8 @@ service cloud.firestore {
       // All competition metadata is publicly listable (venue/date/status are not sensitive).
       // Draft hiding happens client-side so onSnapshot queries don't need per-doc rule checks.
       allow read: if true;
-      // Only organizers can create.
-      allow create: if hasRole('organizer')
+      // Any signed-in user can create their own competition (becomes its organizer).
+      allow create: if isSignedIn()
         && request.resource.data.organizerUid == request.auth.uid;
       allow update: if isOrganizerOf(cid) || isAdmin();
       // Delete only allowed on drafts — published events must stay in archive.

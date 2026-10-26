@@ -12,9 +12,9 @@ export function ProtectedRoute({ children, requireOrganizer, requireAdmin }: Pro
   const { user, loading } = useAuth();
   if (loading) return <div className="loading-splash">Laadin…</div>;
   if (!user) return <Navigate to="/login" replace />;
-  if (requireOrganizer && !user.roles.organizer && !user.roles.admin) {
-    return <Navigate to="/manage" replace />;
-  }
+  // Any signed-in user may create/manage their own events. The organizer
+  // role is just a convenience flag for navigation (shows "Halda" link).
+  void requireOrganizer;
   if (requireAdmin && !user.roles.admin) {
     return (
       <div className="page">
