@@ -32,8 +32,8 @@ service cloud.firestore {
 
     // ---- Users ----
     match /users/{uid} {
-      // Any signed-in user can read user profiles (for display names on protocol).
-      allow read: if isSignedIn();
+      // Public read — display names appear on protocols anyway.
+      allow read: if true;
       // Only the owner can create their own user doc at sign-up.
       allow create: if isSignedIn() && request.auth.uid == uid
         && request.resource.data.roles.admin == false;
@@ -47,7 +47,8 @@ service cloud.firestore {
 
     // ---- Horses ----
     match /horses/{horseId} {
-      allow read: if isSignedIn();
+      // Public read — horse name visible on protocols anyway.
+      allow read: if true;
       allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
       allow update, delete: if isSignedIn()
         && resource.data.ownerUid == request.auth.uid;
@@ -55,7 +56,8 @@ service cloud.firestore {
 
     // ---- Courses (designer) ----
     match /courses/{courseId} {
-      allow read: if isSignedIn();
+      // Public read — courses linked to competitions must be visible to riders.
+      allow read: if true;
       allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
       allow update, delete: if isSignedIn()
         && resource.data.ownerUid == request.auth.uid;
@@ -63,8 +65,9 @@ service cloud.firestore {
 
     // ---- Competitions ----
     match /competitions/{cid} {
-      // Public can read non-draft competitions.
-      allow read: if resource.data.status != 'draft' || isOrganizerOf(cid) || isAdmin();
+      // All competition metadata is publicly listable (venue/date/status are not sensitive).
+      // Draft hiding happens client-side so onSnapshot queries don't need per-doc rule checks.
+      allow read: if true;
       // Only organizers can create.
       allow create: if hasRole('organizer')
         && request.resource.data.organizerUid == request.auth.uid;
@@ -74,14 +77,15 @@ service cloud.firestore {
 
       // ---- Classes (sub) ----
       match /classes/{clid} {
-        // Allow all authenticated users to read classes to simplify public views.
-        allow read: if isSignedIn();
+        // Public read — class metadata (height, rules) is public info.
+        allow read: if true;
         allow write: if isOrganizerOf(cid) || isAdmin();
       }
 
       // ---- Registrations (sub) ----
       match /registrations/{rid} {
-        allow read: if isSignedIn();
+        // Public read — participant list is public (standard for horse shows).
+        allow read: if true;
         // Riders can register themselves when competition is open.
         // Organizers can register themselves at any status (useful for testing / own event).
         allow create: if isSignedIn()
