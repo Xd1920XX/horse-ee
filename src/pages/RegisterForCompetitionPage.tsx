@@ -36,7 +36,8 @@ export function RegisterForCompetitionPage() {
     );
   }
 
-  if (comp.status !== 'open') {
+  const isOrganizer = comp.organizerUid === user.uid;
+  if (comp.status !== 'open' && !isOrganizer) {
     return (
       <div className="page">
         <SiteNav />
