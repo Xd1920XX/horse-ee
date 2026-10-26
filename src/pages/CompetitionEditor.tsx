@@ -41,9 +41,16 @@ export function CompetitionEditor() {
     setComp({ ...comp, ...patch });
   };
 
+  // Only drafts can be deleted outright. Any published/running/finished
+  // competition stays in the archive forever (per user requirement).
+  const canHardDelete = comp.status === 'draft';
+
   const remove = async () => {
-    if (!confirm(`Kustuta "${comp.name}"? Kõik klassid ja registreeringud lähevad kaasa.`)) return;
-    // Firestore doesn't recursively delete subcollections — do it ourselves.
+    if (!canHardDelete) {
+      alert('Avaldatud võistlusi ei saa kustutada — jäävad arhiivi. Muuda status: "Lõppenud".');
+      return;
+    }
+    if (!confirm(`Kustuta mustand "${comp.name}"? Kõik klassid ja registreeringud lähevad kaasa.`)) return;
     const [classes, regs, starts] = await Promise.all([
       listClasses(comp.id),
       listRegistrations(comp.id),
@@ -142,8 +149,15 @@ function InfoTab({ comp, save, remove }: { comp: Competition; save: (p: Partial<
       </div>
       <div className="btn-group">
         <button className="primary" onClick={onSave}>Salvesta</button>
-        <button className="danger" onClick={remove}>Kustuta võistlus</button>
+        {comp.status === 'draft' && (
+          <button className="danger" onClick={remove}>Kustuta mustand</button>
+        )}
       </div>
+      {comp.status !== 'draft' && (
+        <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
+          Avaldatud võistlusi ei saa kustutada. Lõpetamiseks muuda status "Lõppenud".
+        </p>
+      )}
     </div>
   );
 }
