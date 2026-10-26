@@ -2856,3 +2856,1213 @@ html, body {
 .landing-header {
   z-index: 50;
 }
+
+/* =============================================================
+   DESIGNER COMPACT REDESIGN v7
+   ============================================================= */
+
+.app {
+  grid-template-columns: 220px 1fr 260px;
+  grid-template-rows: 42px 1fr;
+  background: var(--bg-0);
+}
+
+.topbar {
+  padding: 0 8px;
+  gap: 3px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--border-1);
+  height: 42px;
+}
+
+.topbar h1 {
+  display: none;
+}
+
+.topbar button {
+  padding: 5px 8px;
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-2);
+  border-radius: var(--r-sm);
+  min-height: 30px;
+}
+
+.topbar button:hover {
+  background: var(--bg-3);
+  color: var(--text-1);
+  border-color: var(--border-2);
+}
+
+.topbar button.primary {
+  padding: 5px 12px;
+  box-shadow: none;
+  color: var(--bg-0);
+}
+
+.topbar .divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-1);
+  margin: 0 3px;
+}
+
+.topbar select {
+  background: var(--bg-2);
+  color: var(--text-2);
+  border: 1px solid var(--border-1);
+  padding: 4px 6px;
+  font-size: 11px;
+  border-radius: var(--r-sm);
+}
+
+.topbar .brand-mini {
+  color: var(--gold-2);
+  font-size: 18px;
+  text-decoration: none;
+  padding: 0 6px;
+  border: none;
+  margin-right: 4px;
+}
+
+.topbar .back-link {
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--text-3);
+  text-decoration: none;
+  border-radius: var(--r-sm);
+}
+
+.topbar .back-link:hover {
+  background: var(--bg-3);
+  color: var(--gold-2);
+}
+
+.topbar .button-link {
+  padding: 5px 8px;
+  font-size: 12px;
+  text-decoration: none;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+}
+
+.topbar .button-link:hover {
+  background: var(--bg-3);
+  color: var(--text-1);
+  border-color: var(--border-2);
+}
+
+/* Side panels compact */
+.panel {
+  padding: 10px;
+  background: var(--bg-1);
+  border-color: var(--border-1);
+}
+
+.palette h3, .inspector h3 {
+  font-size: 10px;
+  color: var(--gold-2);
+  margin: 10px 0 6px;
+  letter-spacing: 0.8px;
+}
+
+.palette h3:first-child, .inspector h3:first-child {
+  margin-top: 0;
+}
+
+.tabs {
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  gap: 1px;
+  border-color: var(--border-1);
+}
+
+.tabs button {
+  padding: 5px 6px;
+  font-size: 11px;
+  border-radius: var(--r-sm);
+}
+
+.tabs button.active {
+  background: var(--bg-3);
+  color: var(--gold-2);
+  border-color: var(--border-2);
+}
+
+.palette-item {
+  padding: 7px 10px;
+  margin-bottom: 4px;
+  border-radius: var(--r-sm);
+  background: var(--bg-2);
+  border-color: var(--border-1);
+  transition: all var(--t-fast);
+}
+
+.palette-item:hover {
+  background: var(--bg-3);
+  border-color: var(--border-2);
+  transform: translateX(2px);
+}
+
+.palette-item .swatch {
+  width: 28px;
+  height: 22px;
+  font-size: 16px;
+}
+
+.palette-item .label {
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+/* Inspector rows */
+.inspector .row {
+  margin-bottom: 6px;
+  gap: 6px;
+  flex-direction: row;
+  align-items: center;
+}
+
+.inspector .row label {
+  min-width: 60px;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.inspector .row input,
+.inspector .row select {
+  padding: 5px 7px;
+  font-size: 12px;
+  background: var(--bg-0);
+  border: 1px solid var(--border-1);
+  color: var(--text-1);
+  border-radius: var(--r-sm);
+}
+
+.inspector .row input:focus,
+.inspector .row select:focus {
+  border-color: var(--gold-2);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--gold-2) 20%, transparent);
+}
+
+.inspector .btn-group button {
+  padding: 5px 8px;
+  font-size: 11px;
+  flex: 1;
+  min-height: 28px;
+}
+
+.stat-row {
+  padding: 3px 0;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.stat-row b {
+  color: var(--gold-2);
+  font-size: 12px;
+}
+
+/* Canvas wrap polish */
+.canvas-wrap {
+  background: var(--bg-0);
+}
+
+.hud {
+  top: 6px;
+  left: 6px;
+  padding: 4px 8px;
+  font-size: 10px;
+  background: color-mix(in oklab, var(--bg-1) 85%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-sm);
+  color: var(--text-3);
+}
+
+/* Compact Inspector buttons */
+.inspector .btn-group {
+  gap: 3px;
+}
+
+/* Issue list */
+.issue {
+  padding: 5px 7px;
+  font-size: 11px;
+  margin-bottom: 3px;
+  border-radius: var(--r-sm);
+}
+
+/* Mobile rail refinements */
+.mobile-rail {
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  padding: 4px;
+  gap: 3px;
+  border-radius: var(--r-md);
+  background: color-mix(in oklab, var(--bg-1) 90%, transparent);
+  backdrop-filter: blur(16px);
+  border-color: var(--border-2);
+}
+
+.mobile-rail button {
+  padding: 10px 10px;
+  font-size: 16px;
+  min-width: 40px;
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  color: var(--text-1);
+  border-radius: var(--r-sm);
+}
+
+/* Rotation handle hint text */
+.rotate-hint {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: color-mix(in oklab, var(--bg-0) 90%, transparent);
+  color: var(--gold-2);
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  pointer-events: none;
+  border: 1px solid var(--border-2);
+  z-index: 15;
+  animation: fadeInUp 0.3s;
+}
+
+@keyframes fadeInUp {
+  from { transform: translate(-50%, 10px); opacity: 0; }
+  to { transform: translateX(-50%); opacity: 1; }
+}
+
+
+/* =============================================================
+   DESIGNER FIX v8 — visible buttons + no weird scroll
+   ============================================================= */
+
+/* Topbar buttons: subtle filled background so they're actually visible */
+.topbar button {
+  background: var(--bg-2) !important;
+  border: 1px solid var(--border-1) !important;
+  color: var(--text-1) !important;
+  font-weight: 500;
+}
+
+.topbar button:hover:not(:disabled) {
+  background: var(--bg-3) !important;
+  border-color: var(--border-3) !important;
+  color: var(--gold-2) !important;
+}
+
+.topbar button.primary {
+  background: linear-gradient(135deg, var(--gold-2), var(--gold-3)) !important;
+  border-color: var(--gold-3) !important;
+  color: var(--bg-0) !important;
+  font-weight: 700;
+}
+
+.topbar button.primary:hover {
+  box-shadow: 0 2px 10px -2px color-mix(in oklab, var(--gold-2) 60%, transparent) !important;
+}
+
+.topbar button.danger {
+  background: color-mix(in oklab, var(--red) 20%, var(--bg-2)) !important;
+  border-color: color-mix(in oklab, var(--red) 50%, var(--border-1)) !important;
+  color: #fecaca !important;
+}
+
+.topbar .button-link,
+.topbar .back-link {
+  background: var(--bg-2);
+  border: 1px solid var(--border-1);
+  color: var(--text-1);
+  padding: 5px 10px;
+}
+
+.topbar .button-link:hover,
+.topbar .back-link:hover {
+  background: var(--bg-3);
+  border-color: var(--border-3);
+  color: var(--gold-2);
+}
+
+/* Make topbar buttons easier to spot — slight glow for primary + hover */
+.topbar button.primary {
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold-2) 40%, transparent);
+}
+
+/* Fix left panel horizontal scroll — hover transform caused overflow */
+.panel {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.palette-item:hover {
+  transform: none;
+  background: var(--bg-3);
+  border-color: var(--gold-2);
+}
+
+/* Make palette scrollbar slim and dark */
+.panel::-webkit-scrollbar {
+  width: 6px;
+}
+.panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.panel::-webkit-scrollbar-thumb {
+  background: var(--border-2);
+  border-radius: 3px;
+  border: none;
+}
+.panel::-webkit-scrollbar-thumb:hover {
+  background: var(--border-3);
+}
+
+/* Prevent inner elements from overflowing */
+.palette-item, .tpl-item, .form-card {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.palette {
+  box-sizing: border-box;
+}
+
+/* Toolbar container shouldn't scroll weird */
+.topbar {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.topbar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.topbar::-webkit-scrollbar-thumb {
+  background: var(--border-2);
+}
+
+/* Tab buttons also need visible background */
+.tabs button {
+  background: var(--bg-2);
+  border: 1px solid var(--border-1);
+  color: var(--text-3);
+}
+
+.tabs button:hover {
+  background: var(--bg-3);
+  color: var(--text-1);
+}
+
+.tabs button.active {
+  background: var(--bg-3);
+  color: var(--gold-2);
+  border-color: var(--gold-2);
+  box-shadow: inset 0 -2px 0 var(--gold-2);
+}
+
+/* =============================================================
+   SIDEBAR BUTTON FIT + MOBILE FIX v9
+   ============================================================= */
+
+/* Widen palette so content fits */
+.app {
+  grid-template-columns: 240px 1fr 280px;
+}
+
+/* Make all palette tabs fit by letting them wrap or shrink */
+.tabs {
+  flex-wrap: wrap;
+}
+
+.tabs button {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 5px 4px;
+  font-size: 10.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ensure all buttons stay inside panel */
+.panel button, .panel select, .panel input {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.panel .btn-group {
+  flex-wrap: wrap;
+}
+
+.panel .btn-group button {
+  flex: 1 1 auto;
+  min-width: 60px;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+/* Palette items narrower internals */
+.palette-item {
+  overflow: hidden;
+}
+
+.palette-item .label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+/* Inspector button alignment */
+.inspector button {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Mobile hard reset ===== */
+
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 42px 1fr;
+    grid-template-areas: "topbar" "canvas";
+  }
+  .palette, .inspector { display: none; }
+  .canvas-wrap { padding-bottom: 70px; }
+}
+
+@media (max-width: 720px) {
+  /* Site nav: make brand smaller + simpler */
+  .site-nav {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .site-nav .brand {
+    font-size: 15px;
+    flex: 0 0 auto;
+  }
+  .nav-burger {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    order: 10;
+  }
+  .site-nav-right {
+    gap: 6px;
+    margin-left: auto;
+  }
+  .site-nav-right .user-chip {
+    font-size: 11px;
+    padding: 4px 8px;
+    max-width: 100px;
+  }
+  .site-nav-right button {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-height: 34px;
+  }
+  .site-nav-right .btn.primary {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 34px;
+  }
+  .site-nav nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-1);
+    border-bottom: 1px solid var(--border-1);
+    flex-direction: column;
+    padding: 10px;
+    gap: 2px;
+    z-index: 100;
+    box-shadow: var(--sh-lg);
+  }
+  .site-nav nav.open {
+    display: flex;
+  }
+  .site-nav nav a {
+    padding: 12px 14px;
+    font-size: 15px;
+    border-radius: var(--r-sm);
+    width: 100%;
+    display: block;
+  }
+
+  /* Hero: compact */
+  .hero {
+    padding: 32px 16px 24px;
+    gap: 16px;
+  }
+  .hero h1 {
+    font-size: 30px !important;
+    line-height: 1.1;
+  }
+  .hero p {
+    font-size: 14px;
+    padding: 0 8px;
+  }
+  .hero-stats {
+    gap: 12px;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .stat {
+    flex: 1;
+    min-width: 0;
+  }
+  .stat-num { font-size: 22px; }
+  .stat-label { font-size: 9px; }
+
+  .hero-cta {
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .hero-cta .btn {
+    width: 100%;
+    padding: 12px 20px;
+    min-height: 48px;
+    font-size: 14px;
+  }
+
+  /* Features single col with gap */
+  .features {
+    grid-template-columns: 1fr !important;
+    padding: 12px 16px 20px !important;
+    gap: 12px;
+  }
+
+  .feature-card {
+    padding: 18px !important;
+  }
+
+  .feature-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .feature-card h2 { font-size: 18px; }
+  .feature-card p { font-size: 13px; line-height: 1.5; }
+
+  /* Upcoming cards */
+  .hero-upcoming {
+    padding: 0 16px 24px;
+  }
+  .upcoming-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .comp-card {
+    padding: 16px;
+  }
+  .comp-card h2 {
+    font-size: 16px;
+  }
+
+  /* Landing header */
+  .landing-header {
+    padding: 10px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .landing-header .brand {
+    font-size: 16px;
+  }
+  .landing-nav {
+    gap: 4px;
+  }
+  .landing-nav > a:not(.btn-link):not(.user-chip) {
+    display: none;
+  }
+  .btn-link, .landing-nav .btn-link {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .landing-nav button {
+    padding: 7px 10px;
+    font-size: 11px;
+    min-height: 34px;
+  }
+
+  /* Container */
+  .container {
+    padding: 16px 14px 60px;
+  }
+
+  /* Headings on content pages */
+  .page h1 {
+    font-size: 22px;
+  }
+  .page h2 {
+    font-size: 17px;
+    margin-top: 20px;
+  }
+
+  /* Form card tightens */
+  .form-card {
+    padding: 14px;
+  }
+
+  /* Row stacking label above */
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  .row label {
+    min-width: 0;
+    width: 100%;
+  }
+  .row input, .row select, .row textarea {
+    width: 100%;
+  }
+
+  /* Buttons general */
+  button, .btn {
+    min-height: 42px;
+    padding: 10px 16px;
+  }
+
+  /* Btn-group buttons */
+  .btn-group button {
+    flex: 1;
+  }
+
+  /* Table scroll */
+  .class-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    font-size: 12px;
+  }
+
+  /* Modal */
+  .modal-card {
+    max-width: 100%;
+    margin: 10px;
+  }
+
+  /* Status pills smaller */
+  .status-pill {
+    font-size: 9px;
+    padding: 3px 7px;
+  }
+
+  /* Editor tabs scroll */
+  .editor-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .editor-tabs button {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  /* Score grid */
+  .score-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Comp meta */
+  .comp-meta {
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  /* Protocol/registrations clickable rows */
+  .class-table th, .class-table td {
+    padding: 8px 10px;
+  }
+}
+
+/* Very narrow phones */
+@media (max-width: 400px) {
+  .hero h1 { font-size: 26px !important; }
+  .hero p { font-size: 13px; }
+  .stat-num { font-size: 20px; }
+  .hero-cta .btn { padding: 11px 16px; }
+  .feature-card { padding: 14px !important; }
+  .feature-card h2 { font-size: 17px; }
+}
+
+/* Prevent iOS zoom on focus */
+@media (max-width: 760px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="date"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* =============================================================
+   MOBILE AGGRESSIVE RESET v10
+   Simplify until it just works.
+   ============================================================= */
+
+/* Fix iOS viewport height (URL bar) */
+@supports (height: 100dvh) {
+  html, body, #root { min-height: 100dvh; }
+  .page, .landing, .auth-page { min-height: 100dvh; }
+}
+
+/* Prevent any horizontal scroll anywhere */
+html { overflow-x: hidden; }
+body { overflow-x: hidden; max-width: 100%; }
+.page, .landing, .auth-page {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Kill fancy fixed background on mobile — causes bugs */
+@media (max-width: 760px) {
+  .page, .landing, .auth-page {
+    background: var(--bg-0) !important;
+    background-attachment: scroll !important;
+  }
+
+  /* Simplify landing header completely */
+  .landing-header {
+    padding: 10px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-1) !important;
+    backdrop-filter: none !important;
+    border-bottom: 1px solid var(--border-1);
+  }
+
+  .landing-header .brand {
+    font-size: 16px !important;
+    flex: 0 0 auto;
+    background: none !important;
+    -webkit-text-fill-color: var(--gold-2) !important;
+    color: var(--gold-2) !important;
+  }
+
+  .landing-nav {
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* On landing hide all nav links except primary action */
+  .landing-nav > a:not(.btn-link),
+  .landing-nav > span {
+    display: none !important;
+  }
+
+  .landing-nav .btn-link,
+  .landing-nav button,
+  .landing-nav .user-chip {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    min-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center;
+  }
+
+  .landing-nav .user-chip {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Hero: dead simple */
+  .hero {
+    padding: 30px 16px 20px !important;
+    gap: 14px !important;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 26px !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.5px !important;
+    margin: 0 !important;
+    background: none !important;
+    -webkit-text-fill-color: var(--gold-2) !important;
+    color: var(--gold-2) !important;
+  }
+
+  .hero p {
+    font-size: 14px !important;
+    padding: 0 4px;
+    margin: 0 !important;
+    line-height: 1.5;
+  }
+
+  /* Stats row: horizontal 3 compact */
+  .hero-stats {
+    display: flex !important;
+    width: 100%;
+    padding: 10px 0 !important;
+    gap: 4px !important;
+    justify-content: space-around !important;
+    border-top: 1px solid var(--border-1);
+    border-bottom: 1px solid var(--border-1);
+  }
+  .stat { flex: 1; padding: 0 4px; }
+  .stat-num { font-size: 22px !important; }
+  .stat-label { font-size: 9px !important; letter-spacing: 0.3px !important; }
+
+  /* CTA stacked */
+  .hero-cta {
+    width: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .hero-cta .btn {
+    width: 100% !important;
+    padding: 13px !important;
+    font-size: 14px !important;
+    min-height: 46px !important;
+    justify-content: center;
+  }
+
+  /* Features: real simple single column */
+  .features {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+
+  .feature-card {
+    padding: 16px !important;
+    border-radius: 12px !important;
+    background: var(--bg-2) !important;
+  }
+
+  .feature-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 22px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .feature-card h2 {
+    font-size: 16px !important;
+    margin: 0 0 4px !important;
+  }
+
+  .feature-card p {
+    font-size: 13px !important;
+    margin: 0 0 10px !important;
+    line-height: 1.4;
+  }
+
+  .feature-cta {
+    font-size: 13px !important;
+  }
+
+  /* Upcoming compact */
+  .hero-upcoming {
+    padding: 0 12px 20px !important;
+  }
+  .hero-upcoming h2 {
+    font-size: 15px !important;
+    margin: 10px 0 10px !important;
+    text-align: left !important;
+  }
+  .upcoming-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .comp-card {
+    padding: 14px !important;
+    border-radius: 10px !important;
+  }
+  .comp-card h2 {
+    font-size: 15px !important;
+  }
+  .comp-card .muted {
+    font-size: 12px;
+  }
+
+  /* Site nav for inner pages */
+  .site-nav {
+    padding: 8px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    position: sticky !important;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-1) !important;
+    backdrop-filter: none !important;
+  }
+  .site-nav .brand {
+    font-size: 15px !important;
+    flex: 1 !important;
+    background: none !important;
+    -webkit-text-fill-color: var(--gold-2) !important;
+    color: var(--gold-2) !important;
+  }
+
+  .nav-burger {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    background: var(--bg-2) !important;
+    color: var(--text-1) !important;
+    border: 1px solid var(--border-2) !important;
+    border-radius: 6px !important;
+    font-size: 18px !important;
+    order: 10 !important;
+  }
+
+  .site-nav-right {
+    display: flex !important;
+    gap: 6px !important;
+    flex: 0 0 auto !important;
+    margin-left: auto;
+  }
+
+  .site-nav-right .user-chip {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .site-nav-right button {
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+    min-height: 36px !important;
+  }
+  .site-nav-right .btn.primary {
+    padding: 7px 12px !important;
+    font-size: 12px !important;
+    min-height: 36px !important;
+    box-shadow: none !important;
+  }
+
+  .site-nav nav {
+    position: fixed !important;
+    top: 56px !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: var(--bg-1) !important;
+    display: none !important;
+    flex-direction: column !important;
+    padding: 10px !important;
+    border-bottom: 1px solid var(--border-1) !important;
+    z-index: 90 !important;
+    gap: 2px !important;
+    max-height: calc(100dvh - 56px);
+    overflow-y: auto;
+  }
+
+  .site-nav nav.open {
+    display: flex !important;
+  }
+
+  .site-nav nav a {
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+    border-radius: 6px !important;
+    width: 100% !important;
+    display: block !important;
+    color: var(--text-1) !important;
+  }
+
+  .site-nav nav a.active {
+    background: var(--bg-3) !important;
+    color: var(--gold-2) !important;
+  }
+
+  /* Content pages */
+  .container {
+    padding: 14px 12px 60px !important;
+    max-width: 100% !important;
+  }
+
+  .page h1 {
+    font-size: 22px !important;
+    letter-spacing: -0.3px !important;
+    margin: 0 0 10px !important;
+    background: none !important;
+    -webkit-text-fill-color: var(--text-1) !important;
+    color: var(--text-1) !important;
+  }
+
+  .page h2 {
+    font-size: 16px !important;
+    margin: 18px 0 10px !important;
+  }
+
+  .page h3 { font-size: 14px !important; }
+
+  /* Form card: full width, tight */
+  .form-card {
+    padding: 14px !important;
+    max-width: 100% !important;
+    margin-top: 10px !important;
+  }
+
+  /* Row stacking */
+  .row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 4px !important;
+    margin-bottom: 10px !important;
+  }
+  .row label {
+    min-width: 0 !important;
+    width: 100% !important;
+    font-size: 12px !important;
+    font-weight: 500;
+  }
+  .row input, .row select, .row textarea {
+    width: 100% !important;
+    padding: 10px 12px !important;
+    font-size: 16px !important;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+  .row textarea { min-height: 80px; }
+
+  /* All buttons: touch targets */
+  button, .btn {
+    min-height: 44px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+  }
+
+  /* Btn group */
+  .btn-group {
+    display: flex !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+  }
+  .btn-group button {
+    flex: 1 1 auto !important;
+    min-width: 80px !important;
+  }
+
+  /* Tables scroll horizontally */
+  .class-table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    font-size: 12px !important;
+  }
+  .class-table thead, .class-table tbody, .class-table tr {
+    display: table-row !important;
+  }
+  .class-table th, .class-table td {
+    padding: 8px 10px !important;
+  }
+
+  /* Modal full width */
+  .modal-backdrop { padding: 10px !important; }
+  .modal-card { max-width: 100% !important; padding: 18px !important; }
+
+  /* Score grid */
+  .score-grid { grid-template-columns: 1fr !important; }
+
+  /* Editor tabs scroll */
+  .editor-tabs {
+    display: flex !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    padding: 3px !important;
+    gap: 2px !important;
+  }
+  .editor-tabs button {
+    flex-shrink: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+    min-height: 36px !important;
+  }
+
+  /* Comp meta stacks */
+  .comp-meta {
+    flex-direction: column !important;
+    gap: 4px !important;
+    font-size: 13px !important;
+    margin: 10px 0 15px !important;
+  }
+
+  /* Comp grid */
+  .comp-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .comp-card {
+    padding: 14px !important;
+  }
+
+  /* Course cards */
+  .course-card {
+    padding: 14px !important;
+  }
+
+  /* Status pills */
+  .status-pill {
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+  }
+
+  /* Landing footer */
+  .landing-footer {
+    padding: 16px 12px !important;
+    font-size: 11px;
+  }
+}
+
+/* Nav right spacing for authed user */
+@media (max-width: 460px) {
+  .site-nav-right .user-chip {
+    max-width: 60px;
+  }
+}
+
+/* Short viewports (phone landscape) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .site-nav { position: static; }
+  .hero { padding: 20px 16px; }
+}
+

@@ -178,6 +178,7 @@ export function ArenaCanvas() {
         }
       : null;
 
+  const selectedObstacle = course.obstacles.find((o) => o.id === selectedIds[0]);
   const hudText =
     tool === 'ruler'
       ? `MÕÕDULINT — ${rulerPoints.length}/2 punkti puudutatud`
@@ -185,6 +186,8 @@ export function ArenaCanvas() {
       ? `Puuduta väljakut — ${pendingObstacle}`
       : pendingDecoration
       ? `Puuduta väljakut — ${pendingDecoration}`
+      : selectedIds.length === 1 && selectedObstacle
+      ? `${selectedObstacle.type} · ${Math.round(selectedObstacle.rotation)}° · lohista 🟡 kollaset ringi pööramiseks`
       : `${arenaW}×${arenaH}m · zoom ${zoom.toFixed(2)}x · ${course.obstacles.length} takistust`;
 
   const bg = course.background;
@@ -321,6 +324,18 @@ export function ArenaCanvas() {
               />
             ))}
 
+            {/* Rotation handle for single-selected obstacle (sibling of obstacle so it
+                doesn't conflict with the obstacle's draggable group). */}
+            {selectedIds.length === 1 && selectedObstacle && (
+              <RotationHandle
+                obstacle={selectedObstacle}
+                mPx={mPx}
+                onRotate={(deg) =>
+                  updateObstacle(selectedObstacle.id, { rotation: Math.round(deg) })
+                }
+              />
+            )}
+
             {/* ruler */}
             {rulerPoints.length >= 1 && (
               <>
@@ -426,6 +441,63 @@ function StartFinishMarker({
         <Text x={-18} y={-34} width={36} height={13} text={label} fontSize={9} fontStyle="bold" fill="#0f172a" align="center" verticalAlign="middle" />
       </Group>
     </Group>
+  );
+}
+
+function RotationHandle({
+  obstacle,
+  mPx,
+  onRotate,
+}: {
+  obstacle: { x: number; y: number; width: number; spread: number; rotation: number };
+  mPx: number;
+  onRotate: (deg: number) => void;
+}) {
+  // Place handle 30px outside the obstacle's bounding box along the current rotation.
+  const halfW = Math.max((obstacle.width * mPx) / 2, (obstacle.spread * mPx) / 2);
+  const handleDist = halfW + 36;
+  const rad = (obstacle.rotation * Math.PI) / 180;
+  const cx = obstacle.x * mPx;
+  const cy = obstacle.y * mPx;
+  const hx = cx + Math.cos(rad) * handleDist;
+  const hy = cy + Math.sin(rad) * handleDist;
+
+  const handleDrag = (e: Konva.KonvaEventObject<DragEvent>) => {
+    const node = e.target;
+    const dx = node.x() - cx;
+    const dy = node.y() - cy;
+    const deg = (Math.atan2(dy, dx) * 180) / Math.PI;
+    onRotate(((deg % 360) + 360) % 360);
+  };
+  const stopEvent = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    e.cancelBubble = true;
+  };
+
+  return (
+    <>
+      <Line
+        points={[cx, cy, hx, hy]}
+        stroke="#fbbf24"
+        strokeWidth={1.5}
+        dash={[4, 4]}
+        listening={false}
+      />
+      <Group
+        x={hx}
+        y={hy}
+        draggable
+        onDragMove={handleDrag}
+        onMouseDown={stopEvent}
+        onTouchStart={stopEvent}
+        onClick={stopEvent}
+        onTap={stopEvent}
+      >
+        {/* Larger invisible hit area for easier touch targeting */}
+        <Rect x={-18} y={-18} width={36} height={36} fill="rgba(0,0,0,0.001)" />
+        <Rect x={-13} y={-13} width={26} height={26} fill="#fbbf24" cornerRadius={13} />
+        <Rect x={-5} y={-5} width={10} height={10} fill="#0f172a" cornerRadius={5} />
+      </Group>
+    </>
   );
 }
 

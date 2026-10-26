@@ -166,3 +166,4 @@ export function ObstacleShape({ obstacle: o, mPx, selected, showFlags, onSelect,
     </Group>
   );
 }
+
