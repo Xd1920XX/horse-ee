@@ -80,9 +80,14 @@ service cloud.firestore {
       // ---- Registrations (sub) ----
       match /registrations/{rid} {
         allow read: if isSignedIn();
+        // Riders can register themselves when competition is open.
+        // Organizers can register themselves at any status (useful for testing / own event).
         allow create: if isSignedIn()
           && request.resource.data.riderUid == request.auth.uid
-          && get(/databases/$(database)/documents/competitions/$(cid)).data.status == 'open';
+          && (
+            get(/databases/$(database)/documents/competitions/$(cid)).data.status == 'open'
+            || isOrganizerOf(cid)
+          );
         // Rider can withdraw themselves; organizer can set any status.
         allow update: if isOrganizerOf(cid) || isAdmin()
           || (isSignedIn() && resource.data.riderUid == request.auth.uid

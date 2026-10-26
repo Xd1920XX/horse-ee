@@ -6,9 +6,11 @@ import { listRegistrations } from '../domain/registrations';
 import { watchClasses } from '../domain/classes';
 import { SiteNav } from '../components/SiteNav';
 import { Protocol } from '../components/competition/Protocol';
+import { useAuth } from '../auth/AuthProvider';
 
 export function CompetitionDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [comp, setComp] = useState<Competition | null>(null);
   const [classes, setClasses] = useState<CompetitionClass[]>([]);
   const [regs, setRegs] = useState<Registration[]>([]);
@@ -79,9 +81,29 @@ export function CompetitionDetailPage() {
           </tbody>
         </table>
 
-        {comp.status === 'open' && (
-          <div style={{ marginTop: 20 }}>
-            <Link to={`/competitions/${id}/register`} className="btn primary">Registreeri</Link>
+        {(() => {
+          const isOrganizer = user && comp.organizerUid === user.uid;
+          const canRegister = comp.status === 'open' || isOrganizer;
+          return (
+            <div style={{ marginTop: 20, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {canRegister && user && (
+                <Link to={`/competitions/${id}/register`} className="btn primary">
+                  🏇 Registreeri {isOrganizer && comp.status !== 'open' ? '(sinu võistlus)' : ''}
+                </Link>
+              )}
+              {!user && comp.status === 'open' && (
+                <Link to="/login" className="btn primary">Logi sisse registreerimiseks</Link>
+              )}
+              {isOrganizer && (
+                <Link to={`/manage/competitions/${id}`} className="btn">⚙ Halda võistlust</Link>
+              )}
+            </div>
+          );
+        })()}
+
+        {comp.status === 'draft' && !user && (
+          <div className="empty-msg" style={{ marginTop: 20 }}>
+            Võistlus on mustand. Avalik registreerimine veel suletud.
           </div>
         )}
 

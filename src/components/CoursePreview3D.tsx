@@ -18,42 +18,28 @@ export function CoursePreview3D({ course, walkMode, onExitWalk }: Props) {
   const groundColor =
     course.arena.indoor ? '#78350f' :
     course.arena.surface === 'grass' ? '#4a7a3a' : '#d6c89a';
+  const skyColor = course.arena.indoor ? '#1e293b' : '#7dd3fc';
 
   return (
-    <div className="three-wrap">
+    <div className="three-wrap" style={{ background: skyColor }}>
       <Canvas
-        shadows
         camera={{ position: [arenaW / 2, 30, arenaH * 1.3], fov: 50, near: 0.5, far: 500 }}
+        gl={{ antialias: true }}
       >
-        <color attach="background" args={[course.arena.indoor ? '#1e293b' : '#60a5fa']} />
         <Suspense fallback={null}>
-          <ambientLight intensity={0.7} />
+          <ambientLight intensity={0.8} />
           <directionalLight
             position={[arenaW / 2 + 30, 50, arenaH / 2 + 30]}
-            intensity={1.2}
-            castShadow
-            shadow-mapSize-width={1024}
-            shadow-mapSize-height={1024}
-            shadow-camera-left={-60}
-            shadow-camera-right={60}
-            shadow-camera-top={60}
-            shadow-camera-bottom={-60}
+            intensity={1.0}
           />
 
           {/* arena ground */}
           <mesh
             position={[arenaW / 2, 0, arenaH / 2]}
             rotation={[-Math.PI / 2, 0, 0]}
-            receiveShadow
           >
             <planeGeometry args={[arenaW, arenaH]} />
             <meshStandardMaterial color={groundColor} />
-          </mesh>
-
-          {/* ground outside arena */}
-          <mesh position={[arenaW / 2, -0.01, arenaH / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-            <planeGeometry args={[arenaW * 3, arenaH * 3]} />
-            <meshStandardMaterial color={course.arena.indoor ? '#0f172a' : '#2a4a2a'} />
           </mesh>
 
           {/* arena fence */}
@@ -64,7 +50,7 @@ export function CoursePreview3D({ course, walkMode, onExitWalk }: Props) {
             <Obstacle3D key={o.id} obstacle={o} />
           ))}
 
-          {/* start / finish gates */}
+          {/* start / finish markers */}
           <Gate marker={course.start} color="#22c55e" />
           <Gate marker={course.finish} color="#ef4444" />
 
@@ -94,19 +80,19 @@ function Fence({ w, h, indoor }: { w: number; h: number; indoor: boolean }) {
   const H = 1.2;
   return (
     <group>
-      <mesh position={[w / 2, H / 2, 0]} castShadow>
+      <mesh position={[w / 2, H / 2, 0]}>
         <boxGeometry args={[w, H, 0.1]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      <mesh position={[w / 2, H / 2, h]} castShadow>
+      <mesh position={[w / 2, H / 2, h]}>
         <boxGeometry args={[w, H, 0.1]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      <mesh position={[0, H / 2, h / 2]} castShadow>
+      <mesh position={[0, H / 2, h / 2]}>
         <boxGeometry args={[0.1, H, h]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      <mesh position={[w, H / 2, h / 2]} castShadow>
+      <mesh position={[w, H / 2, h / 2]}>
         <boxGeometry args={[0.1, H, h]} />
         <meshStandardMaterial color={color} />
       </mesh>
@@ -124,23 +110,16 @@ function Gate({
   const rot = (marker.rotation * Math.PI) / 180;
   return (
     <group position={[marker.x, 0, marker.y]} rotation={[0, -rot, 0]}>
-      {/* two posts perpendicular to travel direction */}
-      <mesh position={[0, 1.3, -2]} castShadow>
+      <mesh position={[0, 1.3, -2]}>
         <cylinderGeometry args={[0.1, 0.1, 2.6, 12]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      <mesh position={[0, 1.3, 2]} castShadow>
+      <mesh position={[0, 1.3, 2]}>
         <cylinderGeometry args={[0.1, 0.1, 2.6, 12]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      {/* banner */}
-      <mesh position={[0, 2.4, 0]} castShadow>
+      <mesh position={[0, 2.4, 0]}>
         <boxGeometry args={[0.1, 0.4, 4]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      {/* arrow pointing forward along travel direction */}
-      <mesh position={[1.5, 0.3, 0]} rotation={[0, 0, -Math.PI / 2]} castShadow>
-        <coneGeometry args={[0.3, 0.6, 4]} />
         <meshStandardMaterial color={color} />
       </mesh>
     </group>
