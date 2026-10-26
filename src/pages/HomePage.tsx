@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
+import { BACKEND_MODE } from '../firebase';
 
 export function HomePage() {
   const { user, logout } = useAuth();
@@ -44,7 +45,11 @@ export function HomePage() {
       </section>
 
       <footer className="landing-footer">
-        <small>MVP demo · andmed hoitakse brauseris (mock backend).</small>
+        <small>
+          {BACKEND_MODE === 'real'
+            ? 'Firebase ühendatud · andmed püsivad pilves.'
+            : 'MVP demo · andmed hoitakse brauseris (mock backend).'}
+        </small>
       </footer>
     </div>
   );
