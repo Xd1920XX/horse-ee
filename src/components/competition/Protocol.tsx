@@ -21,10 +21,22 @@ export function Protocol({ compId }: Props) {
   useEffect(() => watchStarts(compId, setStarts), [compId]);
   useEffect(() => { listRegistrations(compId).then(setRegs); }, [compId]);
 
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfErr, setPdfErr] = useState('');
   const onExportPdf = async () => {
-    if (!comp || !cl) return;
-    const { exportProtocolPdf } = await import('../../pdf/protocolPdf');
-    exportProtocolPdf(comp, cl, classStarts, regs);
+    if (!comp || !cl) { setPdfErr('Vali klass'); return; }
+    setPdfBusy(true);
+    setPdfErr('');
+    try {
+      const { exportProtocolPdf } = await import('../../pdf/protocolPdf');
+      exportProtocolPdf(comp, cl, classStarts, regs);
+    } catch (e: any) {
+      // eslint-disable-next-line no-console
+      console.error('[PDF]', e);
+      setPdfErr('PDF viga: ' + (e?.message ?? e));
+    } finally {
+      setPdfBusy(false);
+    }
   };
 
   const cl = classes.find((c) => c.id === selectedClass);
@@ -46,12 +58,15 @@ export function Protocol({ compId }: Props) {
 
       {cl && (
         <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
             <p className="muted" style={{ fontSize: 13 }}>
               Ajalimiit {cl.timeLimitSeconds}s · reeglid {cl.rules}
             </p>
-            <button onClick={onExportPdf}>PDF</button>
+            <button onClick={onExportPdf} disabled={pdfBusy} className="primary">
+              {pdfBusy ? 'Loon…' : '📄 Lae PDF alla'}
+            </button>
           </div>
+          {pdfErr && <div className="auth-error" style={{ marginTop: 8 }}>{pdfErr}</div>}
           <table className="class-table" style={{ marginTop: 10 }}>
             <thead>
               <tr>

@@ -26,7 +26,9 @@ export function HomePage() {
           <Link to="/designer">Rajadisainer</Link>
           {user ? (
             <>
-              <Link to="/my/profile" className="user-chip">{user.displayName}</Link>
+              <Link to="/my/profile" className="user-chip">
+                <span className="user-chip-name">{user.displayName}</span>
+              </Link>
               <button onClick={logout}>Logi välja</button>
             </>
           ) : (

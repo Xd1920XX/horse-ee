@@ -21,11 +21,23 @@ export function StartList({ compId }: { compId: string }) {
   useEffect(() => watchStarts(compId, setStarts), [compId]);
   useEffect(() => { listRegistrations(compId).then(setRegs); }, [compId]);
 
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfErr, setPdfErr] = useState('');
   const onExportPdf = async () => {
     const cl = classes.find((c) => c.id === selectedClass);
-    if (!comp || !cl) return;
-    const { exportStartListPdf } = await import('../../pdf/startListPdf');
-    exportStartListPdf(comp, cl, classStarts, regs);
+    if (!comp || !cl) { setPdfErr('Vali klass'); return; }
+    setPdfBusy(true);
+    setPdfErr('');
+    try {
+      const { exportStartListPdf } = await import('../../pdf/startListPdf');
+      exportStartListPdf(comp, cl, classStarts, regs);
+    } catch (e: any) {
+      // eslint-disable-next-line no-console
+      console.error('[PDF]', e);
+      setPdfErr('PDF viga: ' + (e?.message ?? e));
+    } finally {
+      setPdfBusy(false);
+    }
   };
 
   const classStarts = starts.filter((s) => s.classId === selectedClass);
@@ -72,10 +84,13 @@ export function StartList({ compId }: { compId: string }) {
                 {busy ? 'Loon…' : (classStarts.length ? 'Loo uuesti' : 'Genereeri startlist')}
               </button>
               {classStarts.length > 0 && (
-                <button onClick={onExportPdf}>PDF</button>
+                <button onClick={onExportPdf} disabled={pdfBusy}>
+                  {pdfBusy ? 'Loon…' : '📄 PDF'}
+                </button>
               )}
             </div>
             {!confirmed.length && <p className="muted" style={{ fontSize: 12 }}>Pole kinnitatud osalejaid.</p>}
+            {pdfErr && <div className="auth-error" style={{ marginTop: 8 }}>{pdfErr}</div>}
           </div>
 
           <table className="class-table" style={{ marginTop: 12 }}>
