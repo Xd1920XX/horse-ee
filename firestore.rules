@@ -72,8 +72,8 @@ service cloud.firestore {
 
       // ---- Classes (sub) ----
       match /classes/{clid} {
-        allow read: if get(/databases/$(database)/documents/competitions/$(cid)).data.status != 'draft'
-          || isOrganizerOf(cid) || isAdmin();
+        // Allow all authenticated users to read classes to simplify public views.
+        allow read: if isSignedIn();
         allow write: if isOrganizerOf(cid) || isAdmin();
       }
 

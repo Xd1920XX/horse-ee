@@ -21,9 +21,7 @@ export async function getHorse(id: string): Promise<Horse | null> {
 }
 
 export async function createHorse(h: Omit<Horse, 'id'>): Promise<string> {
-  const id = await addDoc(COL, { ...h, id: '' });
-  await updateDoc<Horse>(`${COL}/${id}`, { id });
-  return id;
+  return await addDoc(COL, h);
 }
 
 export async function updateHorse(id: string, patch: Partial<Horse>): Promise<void> {

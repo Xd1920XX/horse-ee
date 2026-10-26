@@ -15,9 +15,7 @@ export function watchStarts(compId: string, cb: (s: StartEntry[]) => void): () =
 }
 
 export async function createStart(compId: string, s: Omit<StartEntry, 'id'>): Promise<string> {
-  const id = await addDoc(sub(compId), { ...s, id: '' });
-  await updateDoc<StartEntry>(`${sub(compId)}/${id}`, { id });
-  return id;
+  return await addDoc(sub(compId), s);
 }
 
 export async function updateStart(compId: string, id: string, patch: Partial<StartEntry>): Promise<void> {

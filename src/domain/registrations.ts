@@ -20,10 +20,7 @@ export async function listRegistrationsForRider(compId: string, riderUid: string
 }
 
 export async function createRegistration(compId: string, r: Omit<Registration, 'id' | 'createdAt'>): Promise<string> {
-  const full: Registration = { ...r, id: '', createdAt: Date.now() };
-  const id = await addDoc(sub(compId), full);
-  await updateDoc<Registration>(`${sub(compId)}/${id}`, { id });
-  return id;
+  return await addDoc(sub(compId), { ...r, createdAt: Date.now() });
 }
 
 export async function updateRegistration(compId: string, id: string, patch: Partial<Registration>): Promise<void> {

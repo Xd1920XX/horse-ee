@@ -20,9 +20,7 @@ export async function getCompetition(id: string): Promise<Competition | null> {
 }
 
 export async function createCompetition(c: Omit<Competition, 'id' | 'createdAt'>): Promise<string> {
-  const full: Competition = { ...c, id: '', createdAt: Date.now() };
-  const id = await addDoc(COL, full);
-  await updateDoc<Competition>(`${COL}/${id}`, { id });
+  const id = await addDoc(COL, { ...c, createdAt: Date.now() });
   return id;
 }
 
@@ -48,9 +46,7 @@ export function watchClasses(competitionId: string, cb: (cs: CompetitionClass[])
 }
 
 export async function createClass(competitionId: string, cl: Omit<CompetitionClass, 'id'>): Promise<string> {
-  const id = await addDoc(`${COL}/${competitionId}/classes`, { ...cl, id: '' });
-  await updateDoc<CompetitionClass>(`${COL}/${competitionId}/classes/${id}`, { id });
-  return id;
+  return await addDoc(`${COL}/${competitionId}/classes`, cl);
 }
 
 // ---- Registrations ----
@@ -61,10 +57,7 @@ export async function listRegistrations(competitionId: string): Promise<Registra
 }
 
 export async function createRegistration(competitionId: string, r: Omit<Registration, 'id' | 'createdAt'>): Promise<string> {
-  const full: Registration = { ...r, id: '', createdAt: Date.now() };
-  const id = await addDoc(`${COL}/${competitionId}/registrations`, full);
-  await updateDoc<Registration>(`${COL}/${competitionId}/registrations/${id}`, { id });
-  return id;
+  return await addDoc(`${COL}/${competitionId}/registrations`, { ...r, createdAt: Date.now() });
 }
 
 // ---- Starts ----

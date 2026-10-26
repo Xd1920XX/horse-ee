@@ -7,22 +7,34 @@ export function ClassList({ compId }: { compId: string }) {
   const [classes, setClasses] = useState<CompetitionClass[]>([]);
   const [editing, setEditing] = useState<CompetitionClass | null>(null);
   const [adding, setAdding] = useState(false);
+  const [err, setErr] = useState('');
 
   useEffect(() => watchClasses(compId, setClasses), [compId]);
 
   const addNew = async (data: any) => {
-    await createClass(compId, data);
-    setAdding(false);
+    setErr('');
+    try {
+      await createClass(compId, data);
+      setAdding(false);
+    } catch (e: any) {
+      setErr('Klassi lisamine ebaõnnestus: ' + (e?.code ?? '') + ' ' + (e?.message ?? e));
+    }
   };
   const update = async (data: any) => {
     if (!editing) return;
-    await updateClass(compId, editing.id, data);
-    setEditing(null);
+    setErr('');
+    try {
+      await updateClass(compId, editing.id, data);
+      setEditing(null);
+    } catch (e: any) {
+      setErr('Klassi uuendamine ebaõnnestus: ' + (e?.code ?? '') + ' ' + (e?.message ?? e));
+    }
   };
 
   return (
     <div>
       <h2>Klassid</h2>
+      {err && <div className="auth-error" style={{ marginBottom: 10 }}>{err}</div>}
       {!adding && !editing && (
         <button className="primary" onClick={() => setAdding(true)}>+ Lisa klass</button>
       )}

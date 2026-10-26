@@ -15,8 +15,9 @@ export function watchClasses(compId: string, cb: (cs: CompetitionClass[]) => voi
 }
 
 export async function createClass(compId: string, cl: Omit<CompetitionClass, 'id'>): Promise<string> {
-  const id = await addDoc(sub(compId), { ...cl, id: '' });
-  await updateDoc<CompetitionClass>(`${sub(compId)}/${id}`, { id });
+  // Firestore auto-generates the doc id. We write without an id field; callers
+  // read it back via docs returned from list/watch (which include the id).
+  const id = await addDoc(sub(compId), cl);
   return id;
 }
 
