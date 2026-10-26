@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Sky, Stats } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { Course } from '../types';
 import { sortedByNumber } from '../geometry';
@@ -25,22 +25,22 @@ export function CoursePreview3D({ course, walkMode, onExitWalk }: Props) {
         shadows
         camera={{ position: [arenaW / 2, 30, arenaH * 1.3], fov: 50, near: 0.5, far: 500 }}
       >
+        <color attach="background" args={[course.arena.indoor ? '#1e293b' : '#60a5fa']} />
         <Suspense fallback={null}>
-          {!course.arena.indoor && <Sky sunPosition={[100, 20, 100]} />}
-          <ambientLight intensity={0.6} />
+          <ambientLight intensity={0.7} />
           <directionalLight
             position={[arenaW / 2 + 30, 50, arenaH / 2 + 30]}
             intensity={1.2}
             castShadow
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
+            shadow-mapSize-width={1024}
+            shadow-mapSize-height={1024}
             shadow-camera-left={-60}
             shadow-camera-right={60}
             shadow-camera-top={60}
             shadow-camera-bottom={-60}
           />
 
-          {/* ground */}
+          {/* arena ground */}
           <mesh
             position={[arenaW / 2, 0, arenaH / 2]}
             rotation={[-Math.PI / 2, 0, 0]}
@@ -50,14 +50,14 @@ export function CoursePreview3D({ course, walkMode, onExitWalk }: Props) {
             <meshStandardMaterial color={groundColor} />
           </mesh>
 
-          {/* arena fence */}
-          <Fence w={arenaW} h={arenaH} indoor={course.arena.indoor} />
-
           {/* ground outside arena */}
           <mesh position={[arenaW / 2, -0.01, arenaH / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
             <planeGeometry args={[arenaW * 3, arenaH * 3]} />
-            <meshStandardMaterial color={course.arena.indoor ? '#1e293b' : '#2a4a2a'} />
+            <meshStandardMaterial color={course.arena.indoor ? '#0f172a' : '#2a4a2a'} />
           </mesh>
+
+          {/* arena fence */}
+          <Fence w={arenaW} h={arenaH} indoor={course.arena.indoor} />
 
           {/* obstacles */}
           {course.obstacles.map((o) => (
@@ -65,8 +65,8 @@ export function CoursePreview3D({ course, walkMode, onExitWalk }: Props) {
           ))}
 
           {/* start / finish gates */}
-          <Gate marker={course.start} color="#22c55e" label="START" />
-          <Gate marker={course.finish} color="#ef4444" label="FINIŠ" />
+          <Gate marker={course.start} color="#22c55e" />
+          <Gate marker={course.finish} color="#ef4444" />
 
           {/* riding line */}
           <RidingLine course={course} />
@@ -83,8 +83,6 @@ export function CoursePreview3D({ course, walkMode, onExitWalk }: Props) {
               maxDistance={200}
             />
           )}
-
-          {import.meta.env.DEV && <Stats />}
         </Suspense>
       </Canvas>
     </div>
@@ -96,7 +94,6 @@ function Fence({ w, h, indoor }: { w: number; h: number; indoor: boolean }) {
   const H = 1.2;
   return (
     <group>
-      {/* 4 fence rails forming perimeter */}
       <mesh position={[w / 2, H / 2, 0]} castShadow>
         <boxGeometry args={[w, H, 0.1]} />
         <meshStandardMaterial color={color} />
@@ -120,11 +117,9 @@ function Fence({ w, h, indoor }: { w: number; h: number; indoor: boolean }) {
 function Gate({
   marker,
   color,
-  label,
 }: {
   marker: { x: number; y: number; rotation: number };
   color: string;
-  label: string;
 }) {
   const rot = (marker.rotation * Math.PI) / 180;
   return (
@@ -139,72 +134,31 @@ function Gate({
         <meshStandardMaterial color={color} />
       </mesh>
       {/* banner */}
-      <mesh position={[0, 2.4, 0]}>
+      <mesh position={[0, 2.4, 0]} castShadow>
         <boxGeometry args={[0.1, 0.4, 4]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      {/* label plate (just an orange rectangle; text rendering in r3f needs extra setup) */}
-      <mesh position={[0.1, 2.4, 0]}>
-        <planeGeometry args={[1.5, 0.3]} />
-        <meshStandardMaterial color="#0f172a" />
+      {/* arrow pointing forward along travel direction */}
+      <mesh position={[1.5, 0.3, 0]} rotation={[0, 0, -Math.PI / 2]} castShadow>
+        <coneGeometry args={[0.3, 0.6, 4]} />
+        <meshStandardMaterial color={color} />
       </mesh>
-      {/* visually mark label by a small triangle */}
-      <group position={[0, 3, 0]}>
-        <mesh castShadow>
-          <coneGeometry args={[0.3, 0.5, 4]} />
-          <meshStandardMaterial color={color} />
-        </mesh>
-      </group>
-      <GateLabel text={label} />
     </group>
   );
 }
 
-function GateLabel({ text }: { text: string }) {
-  // Use a sprite-like billboard: a plane that always faces camera.
-  const ref = useRef<THREE.Mesh>(null);
-  useFrame(({ camera }) => {
-    if (ref.current) ref.current.lookAt(camera.position);
-  });
-  const canvas = useMemo(() => makeTextTexture(text, '#0f172a', '#fbbf24'), [text]);
-  return (
-    <mesh position={[0, 3.8, 0]} ref={ref}>
-      <planeGeometry args={[2.2, 0.6]} />
-      <meshBasicMaterial map={canvas} transparent />
-    </mesh>
-  );
-}
-
-function makeTextTexture(text: string, bg: string, fg: string): THREE.CanvasTexture {
-  const canvas = document.createElement('canvas');
-  canvas.width = 256;
-  canvas.height = 64;
-  const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = fg;
-  ctx.font = 'bold 32px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  return tex;
-}
-
 function RidingLine({ course }: { course: Course }) {
-  const points = useMemo(() => {
+  const geometry = useMemo(() => {
     const ordered = sortedByNumber(course.obstacles);
     const pts: THREE.Vector3[] = [new THREE.Vector3(course.start.x, 0.1, course.start.y)];
     for (const o of ordered) pts.push(new THREE.Vector3(o.x, 0.1, o.y));
     pts.push(new THREE.Vector3(course.finish.x, 0.1, course.finish.y));
-    return pts;
+    if (pts.length < 2) return null;
+    const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.3);
+    return new THREE.TubeGeometry(curve, Math.max(16, pts.length * 10), 0.1, 8, false);
   }, [course]);
 
-  if (points.length < 2) return null;
-
-  const curve = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.3);
-  const geometry = new THREE.TubeGeometry(curve, points.length * 10, 0.1, 8, false);
+  if (!geometry) return null;
 
   return (
     <mesh geometry={geometry}>
@@ -222,6 +176,7 @@ function WalkCamera({ course, onDone }: { course: Course; onDone?: () => void })
     const pts: THREE.Vector3[] = [new THREE.Vector3(course.start.x, 2.2, course.start.y)];
     for (const o of ordered) pts.push(new THREE.Vector3(o.x, 2.2, o.y));
     pts.push(new THREE.Vector3(course.finish.x, 2.2, course.finish.y));
+    if (pts.length < 2) return null;
     return new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.3);
   }, [course]);
 
@@ -230,6 +185,7 @@ function WalkCamera({ course, onDone }: { course: Course; onDone?: () => void })
   }, [course]);
 
   useFrame((_, delta) => {
+    if (!curve) return;
     progressRef.current += delta * 0.03;
     if (progressRef.current >= 1) {
       progressRef.current = 0;

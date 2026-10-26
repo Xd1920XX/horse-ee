@@ -2,46 +2,44 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// PWA is disabled during active development — stale service workers were causing
+// users to see outdated bundles. We also ship a cleanup SW that unregisters any
+// previous worker on load.
+const ENABLE_PWA = false;
+
 export default defineConfig({
   plugins: [
     react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
-      manifest: {
-        name: 'Rajadisainer — Takistussõit',
-        short_name: 'Rajad',
-        description: 'Takistussõidu rajadisainer treenerile',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
-        display: 'standalone',
-        orientation: 'any',
-        icons: [
-          {
-            src: 'favicon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any',
-          },
-        ],
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
-        // Take control immediately so new builds replace stale caches on next visit.
-        skipWaiting: true,
-        clientsClaim: true,
-        cleanupOutdatedCaches: true,
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/__/, /^\/api\//],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: { cacheName: 'google-fonts', expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } },
-          },
-        ],
-      },
-    }),
+    ...(ENABLE_PWA
+      ? [
+          VitePWA({
+            registerType: 'autoUpdate',
+            includeAssets: ['favicon.svg'],
+            manifest: {
+              name: 'Rajadisainer — Takistussõit',
+              short_name: 'Rajad',
+              description: 'Takistussõidu rajadisainer treenerile',
+              theme_color: '#0f172a',
+              background_color: '#0f172a',
+              display: 'standalone',
+              orientation: 'any',
+              icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+            },
+            workbox: {
+              globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+              skipWaiting: true,
+              clientsClaim: true,
+              cleanupOutdatedCaches: true,
+            },
+          }),
+        ]
+      : [
+          VitePWA({
+            selfDestroying: true,
+            injectRegister: 'auto',
+            registerType: 'autoUpdate',
+          }),
+        ]),
   ],
   server: { host: true, port: 5173 },
 });
