@@ -3,7 +3,9 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  # firebase 13 pulls @firebase/ai which needs Node >= 24.12
+  NODE_VERSION = "24"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 # SPA fallback — all unknown paths serve index.html so react-router can handle them.
 [[redirects]]
