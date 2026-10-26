@@ -7,9 +7,15 @@ type Props = {
   onImportJson: () => void;
   onSharePng: () => void;
   onSaveCloud?: () => void;
+  onSaveAsCopy?: () => void;
+  saveLabel?: string;
+  saveDirty?: boolean;
 };
 
-export function Toolbar({ onExportPdf, onExportJson, onImportJson, onSharePng, onSaveCloud }: Props) {
+export function Toolbar({
+  onExportPdf, onExportJson, onImportJson, onSharePng, onSaveCloud, onSaveAsCopy,
+  saveLabel, saveDirty,
+}: Props) {
   const {
     undo, redo, autoNumber, autoDetectCombinations, clearNumbers,
     toggleGrid, toggleDistances, togglePath, toggleFlags,
@@ -57,8 +63,17 @@ export function Toolbar({ onExportPdf, onExportJson, onImportJson, onSharePng, o
       <button onClick={() => rotateCourse(90)} title="Pööra 90°">↻90</button>
       <div className="spacer" />
       <button onClick={onImportJson}>Impordi</button>
-      <button onClick={onExportJson}>Salvesta JSON</button>
-      {onSaveCloud && <button onClick={onSaveCloud} title="Salvesta pilve">☁ Pilve</button>}
+      <button onClick={onExportJson}>JSON</button>
+      {onSaveCloud && (
+        <button
+          onClick={onSaveCloud}
+          className={saveDirty ? 'primary' : ''}
+          title="Salvesta pilve (Ctrl+S)"
+        >
+          {saveLabel ?? '☁ Salvesta'}
+        </button>
+      )}
+      {onSaveAsCopy && <button onClick={onSaveAsCopy} title="Salvesta uue koopiana">⎘ Koopia</button>}
       <button onClick={onSharePng} title="Jaga PNG">📤</button>
       <Link to="/designer/3d" className="button-link" title="3D eelvaade">🧊 3D</Link>
       <button className="primary" onClick={onExportPdf}>PDF</button>
