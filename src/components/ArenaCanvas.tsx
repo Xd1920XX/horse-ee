@@ -402,18 +402,29 @@ function StartFinishMarker({
   label: string;
   onDragEnd: (x: number, y: number) => void;
 }) {
+  // marker.rotation = 0 → line perpendicular to +x travel (vertical bar).
+  // Convention here: rotation = ride-through direction in degrees.
   return (
     <Group
       x={marker.x * mPx}
       y={marker.y * mPx}
+      rotation={marker.rotation}
       draggable
       onDragEnd={(e) => onDragEnd(e.target.x() / mPx, e.target.y() / mPx)}
     >
-      <Line points={[-20, 0, 20, 0]} stroke={color} strokeWidth={3} />
-      <Line points={[-20, -4, -20, 4]} stroke={color} strokeWidth={3} />
-      <Line points={[20, -4, 20, 4]} stroke={color} strokeWidth={3} />
-      <Rect x={-18} y={-18} width={36} height={13} fill={color} cornerRadius={2} />
-      <Text x={-18} y={-18} width={36} height={13} text={label} fontSize={9} fontStyle="bold" fill="#0f172a" align="center" verticalAlign="middle" />
+      {/* flag line perpendicular to travel */}
+      <Line points={[0, -22, 0, 22]} stroke={color} strokeWidth={3} />
+      <Line points={[-4, -22, 4, -22]} stroke={color} strokeWidth={3} />
+      <Line points={[-4, 22, 4, 22]} stroke={color} strokeWidth={3} />
+      {/* arrow showing travel direction */}
+      <Line points={[0, 0, 18, 0]} stroke={color} strokeWidth={2} />
+      <Line points={[18, 0, 13, -4]} stroke={color} strokeWidth={2} />
+      <Line points={[18, 0, 13, 4]} stroke={color} strokeWidth={2} />
+      {/* label — un-rotate so text stays readable */}
+      <Group rotation={-marker.rotation}>
+        <Rect x={-18} y={-34} width={36} height={13} fill={color} cornerRadius={2} />
+        <Text x={-18} y={-34} width={36} height={13} text={label} fontSize={9} fontStyle="bold" fill="#0f172a" align="center" verticalAlign="middle" />
+      </Group>
     </Group>
   );
 }

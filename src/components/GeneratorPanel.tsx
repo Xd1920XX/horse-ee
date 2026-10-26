@@ -9,10 +9,10 @@ export function GeneratorPanel() {
   const [style, setStyle] = useState<'flowing' | 'technical' | 'mixed'>('mixed');
   const [combo, setCombo] = useState(true);
   const [water, setWater] = useState(false);
-  const [seed, setSeed] = useState('');
+  const [shapeSeed, setShapeSeed] = useState('');
+  const [jumpSeed, setJumpSeed] = useState('');
 
-  const generate = () => {
-    const seedNum = seed ? parseInt(seed, 10) : Math.floor(Math.random() * 1e9);
+  const build = (ss: number, js: number) => {
     const built = generateCourse({
       arenaW: course.arena.width,
       arenaH: course.arena.height,
@@ -21,7 +21,8 @@ export function GeneratorPanel() {
       includeCombinations: combo,
       includeWater: water,
       style,
-      seed: seedNum,
+      shapeSeed: ss,
+      jumpSeed: js,
     });
     setCourse({
       ...course,
@@ -29,10 +30,23 @@ export function GeneratorPanel() {
       decorations: [],
       start: built.start ?? course.start,
       finish: built.finish ?? course.finish,
-      name: `Auto rada ${seedNum}`,
+      name: `Auto rada ${ss}·${js}`,
       updatedAt: Date.now(),
     });
-    setSeed(String(seedNum));
+    setShapeSeed(String(ss));
+    setJumpSeed(String(js));
+  };
+
+  const generate = () => {
+    const ss = shapeSeed ? parseInt(shapeSeed, 10) : Math.floor(Math.random() * 1e9);
+    const js = jumpSeed ? parseInt(jumpSeed, 10) : Math.floor(Math.random() * 1e9);
+    build(ss, js);
+  };
+
+  const variation = () => {
+    const ss = shapeSeed ? parseInt(shapeSeed, 10) : Math.floor(Math.random() * 1e9);
+    const js = Math.floor(Math.random() * 1e9);
+    build(ss, js);
   };
 
   return (
@@ -63,14 +77,24 @@ export function GeneratorPanel() {
         </label>
       </div>
       <div className="row">
-        <label>Seed</label>
-        <input placeholder="juhuslik" value={seed} onChange={(e) => setSeed(e.target.value)} />
+        <label>Kuju seed</label>
+        <input placeholder="juhuslik" value={shapeSeed} onChange={(e) => setShapeSeed(e.target.value)} />
+      </div>
+      <div className="row">
+        <label>Hüppe seed</label>
+        <input placeholder="juhuslik" value={jumpSeed} onChange={(e) => setJumpSeed(e.target.value)} />
       </div>
       <button className="primary" style={{ width: '100%', marginTop: 8 }} onClick={generate}>
         Genereeri rada
       </button>
+      <button style={{ width: '100%', marginTop: 4 }} onClick={variation} disabled={!shapeSeed}>
+        Variatsioon (sama kuju, uued hüpped)
+      </button>
       <p style={{ fontSize: 11, color: '#64748b', marginTop: 8 }}>
-        Sama seed → sama rada. Lahtiseid muuda käsitsi + salvesta.
+        Sama seed → sama rada. Takistused numereeritakse automaatselt (1, 2, 3…) ratsutamise järjekorras. Käsitsi numeratsiooniks vali takistus ja muuda välja <b>Nr</b>, või kasuta tööribal nuppu <b>Auto nr</b>.
+      </p>
+      <p style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+        Juhu-rada ehitatakse mööda sõidujoont (ovaal / 8-kujund / serpentiin). Start- ja finišjoon pöörduvad automaatselt sõidusuuna järgi — Inspektoris saad neid veel käsitsi diagonaali keerata.
       </p>
     </div>
   );

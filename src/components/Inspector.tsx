@@ -21,6 +21,7 @@ export function Inspector() {
   const updateBackground = useStore((s) => s.updateBackground);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const moveMarker = useStore((s) => s.moveMarker);
   const sel = course.obstacles.find((o) => o.id === selectedIds[0]);
   const selDec = course.decorations.find((d) => d.id === selectedIds[0]);
 
@@ -85,6 +86,43 @@ export function Inspector() {
           ))}
         </select>
       </div>
+
+      <h3 style={{ marginTop: 16 }}>Start &amp; Finiš</h3>
+      <div className="row">
+        <label>Start °</label>
+        <input
+          type="number"
+          min={-180}
+          max={360}
+          step={5}
+          value={Math.round(course.start.rotation)}
+          onChange={(e) => moveMarker('start', { rotation: +e.target.value })}
+        />
+        <input
+          type="number"
+          min={-180}
+          max={360}
+          step={5}
+          value={Math.round(course.finish.rotation)}
+          onChange={(e) => moveMarker('finish', { rotation: +e.target.value })}
+        />
+        <span style={{ color: '#64748b', fontSize: 12 }}>finiš °</span>
+      </div>
+      <div className="btn-group">
+        <button onClick={() => moveMarker('start', { rotation: 0 })} title="Start horisontaalne">S 0°</button>
+        <button onClick={() => moveMarker('start', { rotation: 45 })} title="Start diagonaalne">S 45°</button>
+        <button onClick={() => moveMarker('start', { rotation: 90 })} title="Start vertikaalne">S 90°</button>
+        <button onClick={() => moveMarker('start', { rotation: 135 })} title="Start diagonaal 2">S 135°</button>
+      </div>
+      <div className="btn-group" style={{ marginTop: 4 }}>
+        <button onClick={() => moveMarker('finish', { rotation: 0 })}>F 0°</button>
+        <button onClick={() => moveMarker('finish', { rotation: 45 })}>F 45°</button>
+        <button onClick={() => moveMarker('finish', { rotation: 90 })}>F 90°</button>
+        <button onClick={() => moveMarker('finish', { rotation: 135 })}>F 135°</button>
+      </div>
+      <p style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+        Kraad = ratsutamise suund. Noole suund = kuhu hobune liigub.
+      </p>
 
       <h3 style={{ marginTop: 16 }}>Taustpilt</h3>
       {!course.background && (

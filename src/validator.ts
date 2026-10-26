@@ -7,6 +7,13 @@ export type ValidationIssue = {
   obstacleIds?: string[];
 };
 
+// Smallest signed difference between two angles in degrees, in range (-180, 180].
+function angleDiff(a: number, b: number): number {
+  let d = ((b - a) % 360 + 540) % 360 - 180;
+  if (d === -180) d = 180;
+  return d;
+}
+
 export function validateCourse(c: Course): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const { arena, obstacles } = c;
@@ -60,6 +67,46 @@ export function validateCourse(c: Course): ValidationIssue[] {
           severity: 'warn',
           message: `Kombo ${arr[0].number ?? cid}: ${arr[i].letter}-${arr[i + 1].letter} liiga pikk (${d.toFixed(1)}m) kombo jaoks.`,
           obstacleIds: [arr[i].id, arr[i + 1].id],
+        });
+      }
+    }
+  }
+
+  // Approach angle & turn radius checks along the numbered ride.
+  const ride = sortedByNumber(obstacles);
+  if (ride.length >= 1) {
+    const chain: { x: number; y: number; o?: Obstacle; label: string }[] = [
+      { x: c.start.x, y: c.start.y, label: 'start' },
+      ...ride.map((o) => ({ x: o.x, y: o.y, o, label: `${o.number}${o.letter ?? ''}` })),
+      { x: c.finish.x, y: c.finish.y, label: 'finiš' },
+    ];
+    for (let i = 1; i < chain.length - 1; i++) {
+      const prev = chain[i - 1];
+      const node = chain[i];
+      const next = chain[i + 1];
+      const inAngle = (Math.atan2(node.y - prev.y, node.x - prev.x) * 180) / Math.PI;
+      const outAngle = (Math.atan2(next.y - node.y, next.x - node.x) * 180) / Math.PI;
+      const turn = Math.abs(angleDiff(inAngle, outAngle));
+      const prevD = dist(prev, node);
+
+      // Approach angle: obstacle rotation should align with incoming direction (±25°).
+      if (node.o && !node.o.comboGroupId) {
+        const align = Math.abs(angleDiff(inAngle, node.o.rotation));
+        if (align > 35) {
+          issues.push({
+            severity: 'warn',
+            message: `Takistus ${node.label}: lähenemisnurk ${align.toFixed(0)}° takistuse suunast — hobune jõuab küljelt.`,
+            obstacleIds: [node.o.id],
+          });
+        }
+      }
+
+      // Sharp turn with short runway → unrideable.
+      if (turn > 110 && prevD < 15) {
+        issues.push({
+          severity: 'warn',
+          message: `Pööre ${turn.toFixed(0)}° takistuse ${node.label} juures, lähenemine ainult ${prevD.toFixed(1)}m — hobune ei jõua joonele.`,
+          obstacleIds: node.o ? [node.o.id] : undefined,
         });
       }
     }
