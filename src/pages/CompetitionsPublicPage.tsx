@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Competition } from '../domain/types';
 import { watchCompetitions } from '../domain/competitions';
 import { SiteNav } from '../components/SiteNav';
+import { useAuth } from '../auth/AuthProvider';
 
 const STATUS_LABEL: Record<string, { text: string; color: string }> = {
   draft:    { text: 'Mustand', color: '#64748b' },
@@ -13,13 +14,15 @@ const STATUS_LABEL: Record<string, { text: string; color: string }> = {
 };
 
 export function CompetitionsPublicPage() {
+  const { user } = useAuth();
   const [list, setList] = useState<Competition[]>([]);
 
   useEffect(() => {
     return watchCompetitions(setList);
   }, []);
 
-  const visible = list.filter((c) => c.status !== 'draft');
+  // Hide drafts from public, but show them to the organizer who owns them.
+  const visible = list.filter((c) => c.status !== 'draft' || c.organizerUid === user?.uid);
 
   return (
     <div className="page">
