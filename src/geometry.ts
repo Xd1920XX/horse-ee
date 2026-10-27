@@ -34,20 +34,74 @@ export function sortedByNumber(obstacles: Obstacle[]): Obstacle[] {
     .sort((a, b) => (a.number! - b.number!) || (a.letter ?? '').localeCompare(b.letter ?? ''));
 }
 
-export function pathPoints(start: Marker, obstacles: Obstacle[], finish: Marker): number[] {
+export function pathPoints(
+  start: Marker,
+  obstacles: Obstacle[],
+  finish: Marker,
+  bends?: ({ x: number; y: number } | null)[],
+): number[] {
   const ordered = sortedByNumber(obstacles);
-  const pts: number[] = [start.x, start.y];
-  for (const o of ordered) pts.push(o.x, o.y);
-  pts.push(finish.x, finish.y);
+  const nodes: { x: number; y: number }[] = [
+    { x: start.x, y: start.y },
+    ...ordered.map((o) => ({ x: o.x, y: o.y })),
+    { x: finish.x, y: finish.y },
+  ];
+  const pts: number[] = [];
+  for (let i = 0; i < nodes.length; i++) {
+    pts.push(nodes[i].x, nodes[i].y);
+    const bend = bends?.[i];
+    if (bend && i < nodes.length - 1) {
+      pts.push(bend.x, bend.y);
+    }
+  }
   return pts;
 }
 
-export function totalPathLength(start: Marker, obstacles: Obstacle[], finish: Marker): number {
+export function pathSegments(
+  start: Marker,
+  obstacles: Obstacle[],
+  finish: Marker,
+): { ax: number; ay: number; bx: number; by: number }[] {
+  const ordered = sortedByNumber(obstacles);
+  const nodes = [
+    { x: start.x, y: start.y },
+    ...ordered.map((o) => ({ x: o.x, y: o.y })),
+    { x: finish.x, y: finish.y },
+  ];
+  const segs: { ax: number; ay: number; bx: number; by: number }[] = [];
+  for (let i = 0; i < nodes.length - 1; i++) {
+    segs.push({ ax: nodes[i].x, ay: nodes[i].y, bx: nodes[i + 1].x, by: nodes[i + 1].y });
+  }
+  return segs;
+}
+
+export function totalPathLength(
+  start: Marker,
+  obstacles: Obstacle[],
+  finish: Marker,
+  bends?: ({ x: number; y: number } | null)[],
+): number {
   const ordered = sortedByNumber(obstacles);
   const pts = [{ x: start.x, y: start.y }, ...ordered.map((o) => ({ x: o.x, y: o.y })), { x: finish.x, y: finish.y }];
   let total = 0;
-  for (let i = 0; i < pts.length - 1; i++) total += dist(pts[i], pts[i + 1]);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const bend = bends?.[i];
+    if (bend) {
+      total += dist(pts[i], bend) + dist(bend, pts[i + 1]);
+    } else {
+      total += dist(pts[i], pts[i + 1]);
+    }
+  }
   return total;
+}
+
+// Length of a single segment (optionally via its bend).
+export function segmentLength(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+  bend?: { x: number; y: number } | null,
+): number {
+  return bend ? dist(a, bend) + dist(bend, b) : dist(a, b);
 }
 
 // Place second obstacle at N strides from first, keeping first's rotation direction

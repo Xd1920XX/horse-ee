@@ -5,7 +5,7 @@ import useImage from 'use-image';
 import { useStore } from '../store';
 import { ObstacleShape } from './ObstacleShape';
 import { DecorationShape } from './DecorationShape';
-import { dist, pathPoints, sortedByNumber, stridesBetween } from '../geometry';
+import { dist, pathPoints, pathSegments, sortedByNumber, stridesBetween } from '../geometry';
 
 const PADDING = 24;
 
@@ -33,6 +33,8 @@ export function ArenaCanvas() {
   const updateObstacle = useStore((s) => s.updateObstacle);
   const updateDecoration = useStore((s) => s.updateDecoration);
   const moveMarker = useStore((s) => s.moveMarker);
+  const setArena = useStore((s) => s.setArena);
+  const setRidingLineBend = useStore((s) => s.setRidingLineBend);
   const addObstacle = useStore((s) => s.addObstacle);
   const addDecoration = useStore((s) => s.addDecoration);
   const setPendingObstacle = useStore((s) => s.setPendingObstacle);
@@ -147,7 +149,8 @@ export function ArenaCanvas() {
     clearSelection();
   };
 
-  const path = pathPoints(course.start, course.obstacles, course.finish);
+  const path = pathPoints(course.start, course.obstacles, course.finish, course.ridingLineBends);
+  const segments = pathSegments(course.start, course.obstacles, course.finish);
   const ordered = sortedByNumber(course.obstacles);
 
   const distanceLabels: { x: number; y: number; text: string }[] = [];
@@ -160,11 +163,16 @@ export function ArenaCanvas() {
     for (let i = 0; i < points.length - 1; i++) {
       const a = points[i];
       const b = points[i + 1];
-      const d = dist(a, b);
+      const bend = course.ridingLineBends?.[i];
+      const d = bend ? dist(a, bend) + dist(bend, b) : dist(a, b);
       const info = stridesBetween(d);
+      // Place label at midpoint of actual riding line (not straight line),
+      // so dragged bend pulls the label with it.
+      const mx = bend ? (a.x + bend.x * 2 + b.x) / 4 : (a.x + b.x) / 2;
+      const my = bend ? (a.y + bend.y * 2 + b.y) / 4 : (a.y + b.y) / 2;
       distanceLabels.push({
-        x: (a.x + b.x) / 2,
-        y: (a.y + b.y) / 2,
+        x: mx,
+        y: my,
         text: `${d.toFixed(1)}m · ${info.label}`,
       });
     }
@@ -221,6 +229,64 @@ export function ArenaCanvas() {
               stroke="#0f172a"
               strokeWidth={2}
             />
+
+            {/* Arena resize handles — drag to make the field bigger/smaller */}
+            {/* Right edge: changes width */}
+            <Group
+              x={arenaW * mPx}
+              y={(arenaH * mPx) / 2}
+              draggable
+              dragBoundFunc={(pos) => ({ x: Math.max(10 * mPx, pos.x), y: (arenaH * mPx) / 2 })}
+              onDragMove={(e) => {
+                const w = Math.round(e.target.x() / mPx);
+                if (w >= 10 && w <= 300) setArena({ width: w });
+              }}
+              onMouseDown={(e) => { e.cancelBubble = true; }}
+              onTouchStart={(e) => { e.cancelBubble = true; }}
+            >
+              <Rect x={-20} y={-20} width={40} height={40} fill="rgba(0,0,0,0.001)" />
+              <Rect x={-6} y={-18} width={12} height={36} fill="#fbbf24" cornerRadius={3} stroke="#0f172a" strokeWidth={1.5} />
+            </Group>
+            {/* Bottom edge: changes height */}
+            <Group
+              x={(arenaW * mPx) / 2}
+              y={arenaH * mPx}
+              draggable
+              dragBoundFunc={(pos) => ({ x: (arenaW * mPx) / 2, y: Math.max(10 * mPx, pos.y) })}
+              onDragMove={(e) => {
+                const h = Math.round(e.target.y() / mPx);
+                if (h >= 10 && h <= 300) setArena({ height: h });
+              }}
+              onMouseDown={(e) => { e.cancelBubble = true; }}
+              onTouchStart={(e) => { e.cancelBubble = true; }}
+            >
+              <Rect x={-20} y={-20} width={40} height={40} fill="rgba(0,0,0,0.001)" />
+              <Rect x={-18} y={-6} width={36} height={12} fill="#fbbf24" cornerRadius={3} stroke="#0f172a" strokeWidth={1.5} />
+            </Group>
+            {/* Bottom-right corner: changes both */}
+            <Group
+              x={arenaW * mPx}
+              y={arenaH * mPx}
+              draggable
+              dragBoundFunc={(pos) => ({
+                x: Math.max(10 * mPx, pos.x),
+                y: Math.max(10 * mPx, pos.y),
+              })}
+              onDragMove={(e) => {
+                const w = Math.round(e.target.x() / mPx);
+                const h = Math.round(e.target.y() / mPx);
+                const patch: { width?: number; height?: number } = {};
+                if (w >= 10 && w <= 300) patch.width = w;
+                if (h >= 10 && h <= 300) patch.height = h;
+                if (Object.keys(patch).length) setArena(patch);
+              }}
+              onMouseDown={(e) => { e.cancelBubble = true; }}
+              onTouchStart={(e) => { e.cancelBubble = true; }}
+            >
+              <Rect x={-20} y={-20} width={40} height={40} fill="rgba(0,0,0,0.001)" />
+              <Rect x={-10} y={-10} width={20} height={20} fill="#fbbf24" cornerRadius={10} stroke="#0f172a" strokeWidth={2} />
+              <Rect x={-3} y={-3} width={6} height={6} fill="#0f172a" cornerRadius={3} />
+            </Group>
             {/* bg image overlay */}
             {bg && bgImage && (
               <KonvaImage
@@ -266,9 +332,48 @@ export function ArenaCanvas() {
                 dash={[8, 6]}
                 lineCap="round"
                 listening={false}
-                tension={0.3}
+                tension={0.4}
               />
             )}
+
+            {/* Draggable bend handles — one per segment. Shows at bend if set,
+                else at segment midpoint. Dragging updates the riding line. */}
+            {showPath && segments.map((seg, i) => {
+              const bend = course.ridingLineBends?.[i];
+              const hx = bend ? bend.x : (seg.ax + seg.bx) / 2;
+              const hy = bend ? bend.y : (seg.ay + seg.by) / 2;
+              return (
+                <Group
+                  key={`bend-${i}`}
+                  x={hx * mPx}
+                  y={hy * mPx}
+                  draggable
+                  onDragMove={(e) => {
+                    const node = e.target;
+                    const x = Math.max(0, Math.min(arenaW, node.x() / mPx));
+                    const y = Math.max(0, Math.min(arenaH, node.y() / mPx));
+                    setRidingLineBend(i, { x, y });
+                  }}
+                  onDblClick={() => setRidingLineBend(i, null)}
+                  onDblTap={() => setRidingLineBend(i, null)}
+                  onMouseDown={(e) => { e.cancelBubble = true; }}
+                  onTouchStart={(e) => { e.cancelBubble = true; }}
+                >
+                  {/* generous hit area for touch */}
+                  <Rect x={-18} y={-18} width={36} height={36} fill="rgba(0,0,0,0.001)" />
+                  <Rect
+                    x={-7}
+                    y={-7}
+                    width={14}
+                    height={14}
+                    fill={bend ? '#fbbf24' : 'rgba(251,191,36,0.4)'}
+                    stroke="#0f172a"
+                    strokeWidth={bend ? 2 : 1}
+                    cornerRadius={7}
+                  />
+                </Group>
+              );
+            })}
 
             {/* distance labels */}
             {distanceLabels.map((d, i) => (

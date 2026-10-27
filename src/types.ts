@@ -65,6 +65,9 @@ export type Course = {
   speedMpm: number;    // speed meters/minute (for time estimate)
   background?: BackgroundImage;
   notes?: string;
+  // Optional per-segment riding-line bends. Index aligns with
+  // the segment list [start→n1, n1→n2, ..., nk→finish]. Null = straight.
+  ridingLineBends?: ({ x: number; y: number } | null)[];
   createdAt?: number;
   updatedAt?: number;
 };

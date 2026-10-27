@@ -78,6 +78,8 @@ type State = {
 
   // markers
   moveMarker: (which: 'start' | 'finish', patch: Partial<Marker>) => void;
+  setRidingLineBend: (index: number, point: { x: number; y: number } | null) => void;
+  clearRidingLineBends: () => void;
 
   // numbering
   autoNumber: () => void;
@@ -424,6 +426,21 @@ export const useStore = create<State>((set, get) => ({
     if (snapped.y != null) snapped.y = applySnap(snapped.y, s);
     commit(set, get, (c) => ({ ...c, [which]: { ...c[which], ...snapped } }));
   },
+
+  setRidingLineBend: (index, point) => {
+    commit(set, get, (c) => {
+      const segmentCount = c.obstacles.filter((o) => o.number != null).length + 1;
+      // Ensure array length matches current segments
+      const bends = Array.from({ length: segmentCount }, (_, i) =>
+        c.ridingLineBends?.[i] ?? null
+      );
+      bends[index] = point;
+      return { ...c, ridingLineBends: bends };
+    });
+  },
+
+  clearRidingLineBends: () =>
+    commit(set, get, (c) => ({ ...c, ridingLineBends: undefined })),
 
   autoNumber: () =>
     commit(set, get, (c) => {

@@ -6,7 +6,7 @@ import { OBSTACLE_LABELS, SPEED_PRESETS } from '../types';
 export function StatsPanel() {
   const course = useStore((s) => s.course);
   const setSpeed = useStore((s) => s.setSpeed);
-  const length = totalPathLength(course.start, course.obstacles, course.finish);
+  const length = totalPathLength(course.start, course.obstacles, course.finish, course.ridingLineBends);
   const ordered = sortedByNumber(course.obstacles);
   const timeSec = length / (course.speedMpm / 60);
   const timeLimit = Math.ceil(timeSec * 1.2);
