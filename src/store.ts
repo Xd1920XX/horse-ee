@@ -94,6 +94,7 @@ type State = {
   setPendingObstacle: (t: ObstacleType | null) => void;
   setPendingDecoration: (t: DecorationType | null) => void;
   addRulerPoint: (x: number, y: number) => void;
+  moveRulerPoint: (index: number, x: number, y: number) => void;
   clearRuler: () => void;
 
   // view
@@ -509,6 +510,12 @@ export const useStore = create<State>((set, get) => ({
   addRulerPoint: (x, y) => {
     const pts = get().rulerPoints;
     set({ rulerPoints: pts.length >= 2 ? [{ x, y }] : [...pts, { x, y }] });
+  },
+  moveRulerPoint: (index, x, y) => {
+    const pts = get().rulerPoints.slice();
+    if (!pts[index]) return;
+    pts[index] = { x, y };
+    set({ rulerPoints: pts });
   },
   clearRuler: () => set({ rulerPoints: [] }),
 

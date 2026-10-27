@@ -38,6 +38,7 @@ export function ArenaCanvas() {
   const setPendingObstacle = useStore((s) => s.setPendingObstacle);
   const setPendingDecoration = useStore((s) => s.setPendingDecoration);
   const addRulerPoint = useStore((s) => s.addRulerPoint);
+  const moveRulerPoint = useStore((s) => s.moveRulerPoint);
   const setZoom = useStore((s) => s.setZoom);
   const setPan = useStore((s) => s.setPan);
 
@@ -181,7 +182,9 @@ export function ArenaCanvas() {
   const selectedObstacle = course.obstacles.find((o) => o.id === selectedIds[0]);
   const hudText =
     tool === 'ruler'
-      ? `MÕÕDULINT — ${rulerPoints.length}/2 punkti puudutatud`
+      ? rulerPoints.length < 2
+        ? `MÕÕDULINT — puuduta ${2 - rulerPoints.length} punkti veel (lohista hiljem)`
+        : `MÕÕDULINT — lohista kollaseid punkte, snap takistusele <2m`
       : pendingObstacle
       ? `Puuduta väljakut — ${pendingObstacle}`
       : pendingDecoration
@@ -336,37 +339,91 @@ export function ArenaCanvas() {
               />
             )}
 
-            {/* ruler */}
+            {/* ruler — draggable endpoints, snaps to obstacles, live distance */}
             {rulerPoints.length >= 1 && (
               <>
+                {rulerPoints.length === 2 && rulerLine && (
+                  <Line
+                    points={[
+                      rulerPoints[0].x * mPx,
+                      rulerPoints[0].y * mPx,
+                      rulerPoints[1].x * mPx,
+                      rulerPoints[1].y * mPx,
+                    ]}
+                    stroke="#fbbf24"
+                    strokeWidth={2}
+                    dash={[6, 4]}
+                    listening={false}
+                  />
+                )}
                 {rulerPoints.map((p, i) => (
-                  <Rect key={`rp${i}`} x={p.x * mPx - 5} y={p.y * mPx - 5} width={10} height={10} fill="#ef4444" cornerRadius={2} listening={false} />
+                  <Group
+                    key={`rp${i}`}
+                    x={p.x * mPx}
+                    y={p.y * mPx}
+                    draggable
+                    onDragMove={(e) => {
+                      const node = e.target;
+                      let xM = node.x() / mPx;
+                      let yM = node.y() / mPx;
+                      // Snap to obstacle centers within 2m
+                      let snap: { x: number; y: number; d: number } | null = null;
+                      for (const o of course.obstacles) {
+                        const d = Math.hypot(o.x - xM, o.y - yM);
+                        if (d < 2 && (!snap || d < snap.d)) snap = { x: o.x, y: o.y, d };
+                      }
+                      if (snap) {
+                        xM = snap.x;
+                        yM = snap.y;
+                        node.position({ x: xM * mPx, y: yM * mPx });
+                      } else {
+                        xM = Math.max(0, Math.min(arenaW, xM));
+                        yM = Math.max(0, Math.min(arenaH, yM));
+                      }
+                      moveRulerPoint(i, xM, yM);
+                    }}
+                    onMouseDown={(e) => { e.cancelBubble = true; }}
+                    onTouchStart={(e) => { e.cancelBubble = true; }}
+                  >
+                    {/* generous invisible hit area */}
+                    <Rect x={-20} y={-20} width={40} height={40} fill="rgba(0,0,0,0.001)" />
+                    <Rect x={-10} y={-10} width={20} height={20} fill="#fbbf24" cornerRadius={10} stroke="#0f172a" strokeWidth={2} />
+                    <Rect x={-3} y={-3} width={6} height={6} fill="#0f172a" cornerRadius={3} />
+                  </Group>
                 ))}
                 {rulerPoints.length === 2 && rulerLine && (
-                  <>
-                    <Line
-                      points={[rulerPoints[0].x * mPx, rulerPoints[0].y * mPx, rulerPoints[1].x * mPx, rulerPoints[1].y * mPx]}
-                      stroke="#ef4444"
-                      strokeWidth={2}
-                      dash={[6, 4]}
-                      listening={false}
+                  <Group x={rulerLine.mx * mPx} y={rulerLine.my * mPx} listening={false}>
+                    <Rect x={-55} y={-14} width={110} height={28} fill="#fbbf24" cornerRadius={14} />
+                    <Text
+                      x={-55}
+                      y={-14}
+                      width={110}
+                      height={28}
+                      text={`${rulerLine.d.toFixed(2)}m\n${stridesBetween(rulerLine.d).label}`}
+                      fontSize={11}
+                      fill="#0f172a"
+                      align="center"
+                      verticalAlign="middle"
+                      fontStyle="bold"
                     />
-                    <Group x={rulerLine.mx * mPx} y={rulerLine.my * mPx} listening={false}>
-                      <Rect x={-45} y={-11} width={90} height={22} fill="rgba(239,68,68,0.95)" cornerRadius={3} />
-                      <Text
-                        x={-45}
-                        y={-11}
-                        width={90}
-                        height={22}
-                        text={`${rulerLine.d.toFixed(2)}m\n${stridesBetween(rulerLine.d).label}`}
-                        fontSize={10}
-                        fill="#fff"
-                        align="center"
-                        verticalAlign="middle"
-                        fontStyle="bold"
-                      />
-                    </Group>
-                  </>
+                  </Group>
+                )}
+                {rulerPoints.length === 1 && (
+                  <Group x={rulerPoints[0].x * mPx} y={rulerPoints[0].y * mPx - 28} listening={false}>
+                    <Rect x={-70} y={-10} width={140} height={20} fill="rgba(15,23,42,0.9)" cornerRadius={10} />
+                    <Text
+                      x={-70}
+                      y={-10}
+                      width={140}
+                      height={20}
+                      text="Puuduta 2. punkti"
+                      fontSize={10}
+                      fill="#fbbf24"
+                      align="center"
+                      verticalAlign="middle"
+                      fontStyle="bold"
+                    />
+                  </Group>
                 )}
               </>
             )}
